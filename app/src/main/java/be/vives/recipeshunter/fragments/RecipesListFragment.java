@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import be.vives.recipeshunter.R;
-import be.vives.recipeshunter.adapters.RecipesListAdapter;
+import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.models.Recipe;
 import be.vives.recipeshunter.utils.ItemClickSupport;
@@ -26,7 +25,7 @@ public class RecipesListFragment extends Fragment {
     private RecipesListFragmentListener mListener;
 
     private RecyclerView mRecyclerView;
-    private RecipesListAdapter mAdapter;
+    private RecipesRecycleListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     public RecipesListFragment() {
@@ -53,7 +52,7 @@ public class RecipesListFragment extends Fragment {
 
         try {
             mRecipesData = new DownloadRecipesAsyncTask(mSearchQuery).execute().get();
-            mAdapter = new RecipesListAdapter(mRecipesData);
+            mAdapter = new RecipesRecycleListAdapter(mRecipesData);
             mRecyclerView.setAdapter(mAdapter);
         } catch (InterruptedException | ExecutionException ex) {
             ex.printStackTrace();
@@ -67,6 +66,15 @@ public class RecipesListFragment extends Fragment {
                 mListener.navigateToDetailsFragment();
             }
         });
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+            }
+        });
+
 
         return view;
     }

@@ -2,8 +2,8 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="180dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="5dp"
     android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
@@ -13,25 +13,21 @@
     card_view:cardUseCompatPadding="false"
     card_view:contentPaddingLeft="16dp"
     card_view:contentPaddingRight="16dp"
+    card_view:contentPaddingBottom="24dp"
     android:id="@+id/list_item_recipe">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <!-- Column 0 -->
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="24dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/list_item_recipe_image"
                 android:hint="Recipe name"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
@@ -39,42 +35,43 @@
                 />
 
             <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/list_item_recipe_title"
+                android:layout_toLeftOf="@+id/list_item_recipe_image"
                 android:hint="Publisher name"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:id="@+id/list_item_recipe_publisher_name"
                 />
-        </LinearLayout>
 
-        <!--Column 1-->
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="X/100"
+                android:textColor="#FFFFFF"
+                android:id="@+id/list_item_recipe_social_rank"
+                android:layout_below="@+id/list_item_recipe_publisher_name"
+                android:layout_alignParentStart="true" />
 
             <ProgressBar
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:paddingTop="16dp"
                 style="?android:attr/progressBarStyleLarge"
                 android:id="@+id/list_item_recipe_loading_spinner"
-                />
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true" />
 
             <ImageView
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:paddingTop="24dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:id="@+id/list_item_recipe_image"/>
+        </RelativeLayout>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/list_item_recipe_social_rank"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
 </android.support.v7.widget.CardView>

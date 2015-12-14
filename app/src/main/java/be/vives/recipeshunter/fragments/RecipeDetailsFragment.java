@@ -54,7 +54,6 @@ public class RecipeDetailsFragment extends Fragment {
         mOpenSourceUrlButton = (Button) view.findViewById(R.id.recipe_details_source_url);
         mSocialRankTextView = (TextView) view.findViewById(R.id.recipe_details_social_rank);
 
-        // todo: reuse image
         mTitleTextView.setText(mCurrentRecipe.getTitle());
         mPublisherNameTextView.setText(mCurrentRecipe.getPublisherName());
         mSocialRankTextView.setText(Integer.toString(mCurrentRecipe.getSocialRank()) + " / 100");

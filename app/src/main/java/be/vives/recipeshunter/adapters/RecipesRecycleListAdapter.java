@@ -20,36 +20,13 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.models.Recipe;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
-public class RecipesListAdapter
+public class RecipesRecycleListAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ItemClickSupport.OnItemClickListener {
     private List<Recipe> mRecipesData;
     private DisplayImageOptions mImageOptions;
 
-    @Override
-    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        android.util.Log.d("Click", mRecipesData.get(position).toString());
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTitleTextView;
-        public ImageView mImageView;
-        public TextView mPublisherNameTextView;
-        public TextView mSocialRankTextView;
-        public ProgressBar mImageLoadingSpinner;
-
-        public ViewHolder(View view) {
-            super(view);
-
-            mTitleTextView = (TextView) view.findViewById(R.id.list_item_recipe_title);
-            mImageView = (ImageView) view.findViewById(R.id.list_item_recipe_image);
-            mPublisherNameTextView = (TextView) view.findViewById(R.id.list_item_recipe_publisher_name);
-            mSocialRankTextView = (TextView) view.findViewById(R.id.list_item_recipe_social_rank);
-            mImageLoadingSpinner = (ProgressBar) view.findViewById(R.id.list_item_recipe_loading_spinner);
-        }
-    }
-
-    public RecipesListAdapter(List<Recipe> recipes) {
+    public RecipesRecycleListAdapter(List<Recipe> recipes) {
         mRecipesData = recipes;
         mImageOptions = new DisplayImageOptions.Builder()
                 .displayer(new FadeInBitmapDisplayer(300))
@@ -58,12 +35,16 @@ public class RecipesListAdapter
     }
 
     @Override
-    public RecipesListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+        android.util.Log.d("Click", mRecipesData.get(position).toString());
+    }
+
+    @Override
+    public RecipesRecycleListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_recipe, parent, false);
 
-        ViewHolder vh = new ViewHolder(view);
-        return vh;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -71,7 +52,7 @@ public class RecipesListAdapter
         final ViewHolder vh = (ViewHolder) holder;
         vh.mTitleTextView.setText(mRecipesData.get(position).getTitle());
         vh.mPublisherNameTextView.setText(mRecipesData.get(position).getPublisherName());
-        vh.mSocialRankTextView.setText(Integer.toString(mRecipesData.get(position).getSocialRank()));
+        vh.mSocialRankTextView.setText(Integer.toString(mRecipesData.get(position).getSocialRank()) + "/100");
 
         ImageLoader.getInstance().displayImage(
                 String.valueOf(mRecipesData.get(position).getImageUrl()),
@@ -95,5 +76,23 @@ public class RecipesListAdapter
     @Override
     public int getItemCount() {
         return mRecipesData.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView mTitleTextView;
+        public ImageView mImageView;
+        public TextView mPublisherNameTextView;
+        public TextView mSocialRankTextView;
+        public ProgressBar mImageLoadingSpinner;
+
+        public ViewHolder(View view) {
+            super(view);
+
+            mTitleTextView = (TextView) view.findViewById(R.id.list_item_recipe_title);
+            mImageView = (ImageView) view.findViewById(R.id.list_item_recipe_image);
+            mPublisherNameTextView = (TextView) view.findViewById(R.id.list_item_recipe_publisher_name);
+            mSocialRankTextView = (TextView) view.findViewById(R.id.list_item_recipe_social_rank);
+            mImageLoadingSpinner = (ProgressBar) view.findViewById(R.id.list_item_recipe_loading_spinner);
+        }
     }
 }
