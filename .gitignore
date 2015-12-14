@@ -1,0 +1,13 @@
+.gradle
+settings.gradle
+RecipesHunter.iml
+gradle.properties
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+/.idea
+/gradle
+gradlew*
