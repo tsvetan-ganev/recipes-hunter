@@ -18,11 +18,9 @@ import java.util.List;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.models.Recipe;
-import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class RecipesRecycleListAdapter
-        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements ItemClickSupport.OnItemClickListener {
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Recipe> mRecipesData;
     private DisplayImageOptions mImageOptions;
 
@@ -32,11 +30,6 @@ public class RecipesRecycleListAdapter
                 .displayer(new FadeInBitmapDisplayer(300))
                 .cacheOnDisk(true)
                 .build();
-    }
-
-    @Override
-    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-        android.util.Log.d("Click", mRecipesData.get(position).toString());
     }
 
     @Override

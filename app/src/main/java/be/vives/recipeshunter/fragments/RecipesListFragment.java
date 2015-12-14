@@ -26,7 +26,16 @@ public class RecipesListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
+
+    // endless scrolling
+    private int mCurrentPage = 1;
+    private int mPreviousTotal = 0;
+    private boolean mIsLoading = true;
+    private final int mVisibleThreshold = 5;
+    private int mFisrtVisibleItemPos;
+    private int mVisibleItemsCount;
+    private int mTotalItemsCount;
 
     public RecipesListFragment() {
 
@@ -51,7 +60,9 @@ public class RecipesListFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         try {
-            mRecipesData = new DownloadRecipesAsyncTask(mSearchQuery).execute().get();
+            if (mRecipesData.size() == 0) {
+                mRecipesData = new DownloadRecipesAsyncTask(mSearchQuery).execute().get();
+            }
             mAdapter = new RecipesRecycleListAdapter(mRecipesData);
             mRecyclerView.setAdapter(mAdapter);
         } catch (InterruptedException | ExecutionException ex) {
@@ -71,7 +82,29 @@ public class RecipesListFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                mVisibleItemsCount = mRecyclerView.getChildCount();
+                mTotalItemsCount = mLayoutManager.getItemCount();
+                mFisrtVisibleItemPos = mLayoutManager.findFirstVisibleItemPosition();
 
+                if (mIsLoading && mTotalItemsCount > mPreviousTotal) {
+                        mIsLoading = false;
+                        mPreviousTotal = mTotalItemsCount;
+                }
+                if (!mIsLoading &&
+                        (mTotalItemsCount - mVisibleItemsCount)
+                        <= (mFisrtVisibleItemPos + mVisibleThreshold)) {
+                    android.util.Log.d("RecyclerView", "End is reached at page " + Integer.toString(mCurrentPage));
+                    android.util.Log.d("RecyclerView", "Number of items: " + mRecipesData.size());
+                    mIsLoading = true;
+                    String newQuery = mSearchQuery + "&page=" + Integer.toString(++mCurrentPage);
+                    try {
+                        mRecipesData.addAll(new DownloadRecipesAsyncTask(newQuery).execute().get());
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        mIsLoading = false;
+                    }
+                }
             }
         });
 
