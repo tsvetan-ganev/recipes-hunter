@@ -28,14 +28,9 @@ public class RecipesListFragment extends Fragment {
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
-    // endless scrolling
     private int mCurrentPage = 1;
-    private int mPreviousTotal = 0;
-    private boolean mIsLoading = true;
-    private final int mVisibleThreshold = 5;
-    private int mFisrtVisibleItemPos;
-    private int mVisibleItemsCount;
-    private int mTotalItemsCount;
+    private boolean mIsLoading = false;
+    private boolean mIsEndReached = false;
 
     public RecipesListFragment() {
 
@@ -82,32 +77,11 @@ public class RecipesListFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                mVisibleItemsCount = mRecyclerView.getChildCount();
-                mTotalItemsCount = mLayoutManager.getItemCount();
-                mFisrtVisibleItemPos = mLayoutManager.findFirstVisibleItemPosition();
-
-                if (mIsLoading && mTotalItemsCount > mPreviousTotal) {
-                        mIsLoading = false;
-                        mPreviousTotal = mTotalItemsCount;
-                }
-                if (!mIsLoading &&
-                        (mTotalItemsCount - mVisibleItemsCount)
-                        <= (mFisrtVisibleItemPos + mVisibleThreshold)) {
-                    android.util.Log.d("RecyclerView", "End is reached at page " + Integer.toString(mCurrentPage));
-                    android.util.Log.d("RecyclerView", "Number of items: " + mRecipesData.size());
-                    mIsLoading = true;
-                    String newQuery = mSearchQuery + "&page=" + Integer.toString(++mCurrentPage);
-                    try {
-                        mRecipesData.addAll(new DownloadRecipesAsyncTask(newQuery).execute().get());
-                    } catch (InterruptedException | ExecutionException ex) {
-                        ex.printStackTrace();
-                    } finally {
-                        mIsLoading = false;
-                    }
+                if (!recyclerView.canScrollVertically(1) && !mIsLoading) {
+                    onScrolledToBottom();
                 }
             }
         });
-
 
         return view;
     }
@@ -127,6 +101,31 @@ public class RecipesListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void onScrolledToBottom() {
+        android.util.Log.d("RecyclerView", "End is reached at page " + Integer.toString(mCurrentPage));
+        android.util.Log.d("RecyclerView", "Number of items: " + mRecipesData.size());
+
+        if (mIsEndReached) {
+            return;
+        }
+
+        String newQuery = mSearchQuery + "&page=" + Integer.toString(++mCurrentPage);
+        try {
+            mIsLoading = true;
+            ArrayList<Recipe> newlyLoadedRecipes = new DownloadRecipesAsyncTask(newQuery).execute().get();
+            mRecipesData.addAll(newlyLoadedRecipes);
+            mIsEndReached = newlyLoadedRecipes.isEmpty() ? true : false;
+
+            if (!mIsEndReached) {
+                mAdapter.notifyDataSetChanged();
+            }
+       } catch (InterruptedException | ExecutionException ex) {
+            ex.printStackTrace();
+        } finally {
+            mIsLoading = false;
+        }
     }
 
     public interface RecipesListFragmentListener {
