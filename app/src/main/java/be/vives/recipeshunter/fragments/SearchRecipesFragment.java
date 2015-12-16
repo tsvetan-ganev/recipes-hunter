@@ -1,7 +1,6 @@
 package be.vives.recipeshunter.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,9 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import be.vives.recipeshunter.R;
-import be.vives.recipeshunter.activities.MainActivity;
 
 /**
  * Fragment containing a search box.
@@ -20,6 +19,7 @@ public class SearchRecipesFragment extends Fragment {
     private OnSearchSubmitFragmentListener mListener;
     private EditText mSearchEditText;
     private Button mSearchSubmitButton;
+    private ProgressBar mSearchProgressBar;
 
     public SearchRecipesFragment() {
     }
@@ -31,10 +31,12 @@ public class SearchRecipesFragment extends Fragment {
 
         mSearchEditText = (EditText) view.findViewById(R.id.search_edit_text);
         mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit_button);
+        mSearchProgressBar = (ProgressBar) view.findViewById(R.id.search_progress_bar);
 
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View button) {
+                mSearchProgressBar.setVisibility(View.VISIBLE);
                 mListener.setSearchQuery(mSearchEditText.getText().toString());
                 mListener.navigateFromSearchSubmitFragment();
             }

@@ -1,38 +1,42 @@
-package be.vives.recipeshunter.models;
+package be.vives.recipeshunter.data.viewmodels;
 
-import java.net.MalformedURLException;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
-import java.net.URL;
+
+import be.vives.recipeshunter.data.entities.RecipeEntity;
 
 /**
  * Model class for a single recipe.
  */
-public class Recipe {
+public class RecipeDetailsViewModel {
 
     private String id;
     private String title;
     private String publisherName;
-    private URL sourceUrl;
-    private URL imageUrl;
+    private String sourceUrl;
+    private String imageUrl;
     private int socialRank;
     private List<String> ingredients;
 
-    public Recipe() {
+    public RecipeDetailsViewModel() {
+        this.id = "";
         this.title = "";
         this.publisherName = "";
+        this.sourceUrl = "";
+        this.imageUrl = "";
         this.socialRank = 0;
     }
 
-    public Recipe(String title, String publisherName, String sourceUrl) {
-        this.title = title;
-        this.publisherName = publisherName;
-        try {
-            this.sourceUrl = new URL(sourceUrl);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        this.socialRank = 0;
+    public RecipeDetailsViewModel(RecipeEntity recipeEntity, RecipeAdditionalInfoViewModel additionalInfo) {
+        this.id = recipeEntity.getId();
+        this.title = recipeEntity.getTitle();
+        this.publisherName = recipeEntity.getPublisherName();
+        this.imageUrl = recipeEntity.getImageUrl();
+        this.socialRank = recipeEntity.getSocialRank();
+        this.ingredients = additionalInfo.getIngredients();
+        this.sourceUrl = additionalInfo.getSourceUrl();
     }
 
     // Getters and setters
@@ -60,19 +64,19 @@ public class Recipe {
         this.publisherName = publisherName;
     }
 
-    public URL getSourceUrl() {
+    public String getSourceUrl() {
         return sourceUrl;
     }
 
-    public void setSourceUrl(URL sourceUrl) {
+    public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
     }
 
-    public URL getImageUrl() {
+    public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(URL imageUrl) {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
@@ -105,7 +109,11 @@ public class Recipe {
         result.append(System.getProperty("line.separator"));
         result.append(this.publisherName);
         result.append(System.getProperty("line.separator"));
-        result.append(this.getSourceUrl().toString());
+        result.append(this.getSourceUrl());
+        result.append(System.getProperty("line.separator"));
+        result.append(this.getImageUrl());
+        result.append(System.getProperty("line.separator"));
+        result.append(this.getSocialRank());
 
         return result.toString();
     }

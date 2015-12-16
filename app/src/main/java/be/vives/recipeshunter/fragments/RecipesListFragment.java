@@ -10,17 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
-import be.vives.recipeshunter.data.DownloadRecipesAsyncTask;
-import be.vives.recipeshunter.models.Recipe;
+import be.vives.recipeshunter.data.entities.RecipeEntity;
+import be.vives.recipeshunter.data.rest.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class RecipesListFragment extends Fragment {
     private String mSearchQuery = "";
-    private ArrayList<Recipe> mRecipesData;
+    private List<RecipeEntity> mRecipesData;
 
     private RecipesListFragmentListener mListener;
 
@@ -114,7 +115,7 @@ public class RecipesListFragment extends Fragment {
         String newQuery = mSearchQuery + "&page=" + Integer.toString(++mCurrentPage);
         try {
             mIsLoading = true;
-            ArrayList<Recipe> newlyLoadedRecipes = new DownloadRecipesAsyncTask(newQuery).execute().get();
+            List<RecipeEntity> newlyLoadedRecipes = new DownloadRecipesAsyncTask(newQuery).execute().get();
             mRecipesData.addAll(newlyLoadedRecipes);
             mIsEndReached = newlyLoadedRecipes.isEmpty() ? true : false;
 
@@ -130,7 +131,7 @@ public class RecipesListFragment extends Fragment {
 
     public interface RecipesListFragmentListener {
         String getQueryString();
-        void setRecipe(Recipe recipe);
+        void setRecipe(RecipeEntity recipe);
         void navigateToDetailsFragment();
     }
 }

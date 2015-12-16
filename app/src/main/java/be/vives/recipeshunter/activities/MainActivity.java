@@ -1,5 +1,6 @@
 package be.vives.recipeshunter.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,10 +11,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import be.vives.recipeshunter.R;
+import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.fragments.RecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.RecipesListFragment;
 import be.vives.recipeshunter.fragments.SearchRecipesFragment;
-import be.vives.recipeshunter.models.Recipe;
 
 
 public class MainActivity extends AppCompatActivity
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity
                    RecipeDetailsFragment.RecipeDetailsFragmentListener {
 
     private String mSearchQuery = "";
-    private Recipe mSelectedRecipe = null;
+    private RecipeEntity mSelectedRecipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    // Listeners
     @Override
     public void setSearchQuery(String query) {
         mSearchQuery = query;
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setRecipe(Recipe recipe) {
+    public void setRecipe(RecipeEntity recipe) {
         mSelectedRecipe = recipe;
     }
 
@@ -101,7 +103,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Recipe getSelectedRecipe() {
+    public RecipeEntity getSelectedRecipe() {
         return mSelectedRecipe;
     }
 }

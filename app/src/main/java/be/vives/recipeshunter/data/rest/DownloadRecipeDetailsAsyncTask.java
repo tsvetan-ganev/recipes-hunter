@@ -1,4 +1,4 @@
-package be.vives.recipeshunter.data;
+package be.vives.recipeshunter.data.rest;
 
 import android.os.AsyncTask;
 
@@ -16,9 +16,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.vives.recipeshunter.models.Recipe;
+import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 
-public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, Recipe> {
+public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeAdditionalInfoViewModel> {
     private final String API_KEY = "9e6a705f76e8cd129b7692e570294410";
 
     private final String API_ENDPOINT = "http://food2fork.com/api/";
@@ -32,7 +32,7 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, Recipe>
     }
 
     @Override
-    protected Recipe doInBackground(URL... params) {
+    protected RecipeAdditionalInfoViewModel doInBackground(URL... params) {
         OkHttpClient http = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(mBaseUrl + mRecipeId)
@@ -40,7 +40,7 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, Recipe>
                 .build();
 
         Response res = null;
-        Recipe downloadedRecipe = new Recipe();
+        RecipeAdditionalInfoViewModel detailsViewModel = new RecipeAdditionalInfoViewModel();
         try {
             res = http.newCall(request).execute();
             JSONObject jsonRecipe = new JSONObject(res.body()
@@ -57,12 +57,12 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, Recipe>
                 }
             }
 
-            downloadedRecipe.setIngredients(ingredients);
-            downloadedRecipe.setSourceUrl(new URL(jsonRecipe.getString("source_url")));
+            detailsViewModel.setIngredients(ingredients);
+            detailsViewModel.setSourceUrl(jsonRecipe.getString("source_url"));
         } catch (IOException | JSONException ex) {
             ex.printStackTrace();
         }
 
-        return downloadedRecipe;
+        return detailsViewModel;
     }
 }

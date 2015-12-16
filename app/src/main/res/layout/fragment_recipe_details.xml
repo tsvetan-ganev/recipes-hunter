@@ -59,6 +59,15 @@
             android:id="@+id/recipe_details_source_url"
             />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:text="Add to favourites"
+            android:id="@+id/recipe_details_favs_button"
+            />
+
         <ListView
             android:layout_width="fill_parent"
             android:layout_height="0dp"

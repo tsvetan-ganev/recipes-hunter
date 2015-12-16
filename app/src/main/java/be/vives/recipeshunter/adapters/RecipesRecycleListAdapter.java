@@ -17,14 +17,14 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import java.util.List;
 
 import be.vives.recipeshunter.R;
-import be.vives.recipeshunter.models.Recipe;
+import be.vives.recipeshunter.data.entities.RecipeEntity;
 
 public class RecipesRecycleListAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Recipe> mRecipesData;
+    private List<RecipeEntity> mRecipesData;
     private DisplayImageOptions mImageOptions;
 
-    public RecipesRecycleListAdapter(List<Recipe> recipes) {
+    public RecipesRecycleListAdapter(List<RecipeEntity> recipes) {
         mRecipesData = recipes;
         mImageOptions = new DisplayImageOptions.Builder()
                 .displayer(new FadeInBitmapDisplayer(300))

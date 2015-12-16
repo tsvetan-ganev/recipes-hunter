@@ -1,4 +1,4 @@
-package be.vives.recipeshunter.data;
+package be.vives.recipeshunter.data.rest;
 
 import android.os.AsyncTask;
 
@@ -13,12 +13,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.unbescape.html.HtmlEscape;
 
-import be.vives.recipeshunter.models.Recipe;
+import be.vives.recipeshunter.data.entities.RecipeEntity;
 
-public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, ArrayList<Recipe>> {
+public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, List<RecipeEntity>> {
     private final String API_KEY = "9e6a705f76e8cd129b7692e570294410";
 
     private final String API_ENDPOINT = "http://food2fork.com/api/";
@@ -27,14 +28,13 @@ public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, ArrayList<
 
     private final String mQuery;
 
-    private ArrayList<Recipe> mRecipes = new ArrayList<>();
-
     public DownloadRecipesAsyncTask(String query) {
         mQuery = query;
     }
 
     @Override
-    protected ArrayList<Recipe> doInBackground(URL... params) {
+    protected List<RecipeEntity> doInBackground(URL... params) {
+        List<RecipeEntity> recipes = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
         Request req = new Request.Builder()
                 .url(mBaseUrl + mQuery)
@@ -49,22 +49,21 @@ public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, ArrayList<
             JSONObject currentJsonRecipe;
 
             for (int i = 0; i < jsonData.length(); i++) {
-                Recipe currentRecipe = new Recipe();
+                RecipeEntity currentRecipe = new RecipeEntity();
                 currentJsonRecipe = jsonData.getJSONObject(i);
                 currentRecipe.setId(currentJsonRecipe.getString("recipe_id"));
                 currentRecipe.setTitle(HtmlEscape.unescapeHtml(currentJsonRecipe.getString("title")));
                 currentRecipe.setPublisherName(HtmlEscape.unescapeHtml(currentJsonRecipe.getString("publisher")));
-                currentRecipe.setSourceUrl(new URL(currentJsonRecipe.getString("source_url")));
-                currentRecipe.setImageUrl(new URL(currentJsonRecipe.getString("image_url")));
+                currentRecipe.setImageUrl(currentJsonRecipe.getString("image_url"));
                 currentRecipe.setSocialRank(currentJsonRecipe.getInt("social_rank"));
 
-                mRecipes.add(currentRecipe);
+                recipes.add(currentRecipe);
                 if (isCancelled()) break;
             }
         } catch (IOException | JSONException ex) {
             ex.printStackTrace();
         }
 
-        return mRecipes;
+        return recipes;
     }
 }
