@@ -1,6 +1,5 @@
 package be.vives.recipeshunter.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,15 +11,19 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.fragments.RecipeDetailsFragment;
-import be.vives.recipeshunter.fragments.RecipesListFragment;
-import be.vives.recipeshunter.fragments.SearchRecipesFragment;
+import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment.FavouritesListFragmentListener;
+import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment;
+import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment.RecipeDetailsFragmentListener;
+import be.vives.recipeshunter.fragments.main.RecipesListFragment;
+import be.vives.recipeshunter.fragments.main.RecipesListFragment.RecipesListFragmentListener;
+import be.vives.recipeshunter.fragments.main.SearchRecipesFragment;
+import be.vives.recipeshunter.fragments.main.SearchRecipesFragment.OnSearchSubmitFragmentListener;
 
 
 public class MainActivity extends AppCompatActivity
-        implements RecipesListFragment.RecipesListFragmentListener,
-                   SearchRecipesFragment.OnSearchSubmitFragmentListener,
-                   RecipeDetailsFragment.RecipeDetailsFragmentListener {
+        implements RecipesListFragmentListener,
+                   OnSearchSubmitFragmentListener,
+                   RecipeDetailsFragmentListener {
 
     private String mSearchQuery = "";
     private RecipeEntity mSelectedRecipe;

@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="search_recipe_text">Search for a recipe…</string>
     <string name="search_recipe_submit">Search</string>
+    <string name="search_recipe_favourites_button">Favourites</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

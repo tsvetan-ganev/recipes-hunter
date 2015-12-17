@@ -1,6 +1,7 @@
-package be.vives.recipeshunter.fragments;
+package be.vives.recipeshunter.fragments.favourites;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.local.dao.impl.RecipeDAOImpl;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
+import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class FavouritesListFragment extends Fragment {
     private RecipeDAOImpl mRecipeDao;
@@ -24,6 +26,8 @@ public class FavouritesListFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
+
+    private FavouritesListFragmentListener mListener;
 
     public FavouritesListFragment() {
         // Required empty public constructor
@@ -54,10 +58,40 @@ public class FavouritesListFragment extends Fragment {
         mAdapter = new RecipesRecycleListAdapter(mFavouriteRecipes);
         mRecyclerView.setAdapter(mAdapter);
 
+        ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                Log.d("Item Clicked: ", mFavouriteRecipes.get(position).toString());
+                mListener.setRecipe(mFavouriteRecipes.get(position));
+                mListener.navigateToDetailsFragment();
+            }
+        });
+
         return view;
+    }
+
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (FavouritesListFragmentListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement " + FavouritesListFragmentListener.class);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     private List<RecipeEntity> getFavouriteRecipesList() {
          return mRecipeDao.findAll();
+    }
+
+    public interface FavouritesListFragmentListener {
+        void setRecipe(RecipeEntity recipe);
+        void navigateToDetailsFragment();
     }
 }

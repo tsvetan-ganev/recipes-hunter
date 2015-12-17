@@ -1,4 +1,4 @@
-package be.vives.recipeshunter.data.rest;
+package be.vives.recipeshunter.data.services;
 
 import android.os.AsyncTask;
 

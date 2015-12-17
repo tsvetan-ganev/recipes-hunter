@@ -3,7 +3,7 @@ package be.vives.recipeshunter.data.entities;
 public class IngredientEntity {
     private Integer id;
     private String name;
-    private Integer recipe_id;
+    private String recipeId;
 
     public Integer getId() {
         return id;
@@ -21,11 +21,11 @@ public class IngredientEntity {
         this.name = name;
     }
 
-    public Integer getRecipe_id() {
-        return recipe_id;
+    public String getRecipeId() {
+        return recipeId;
     }
 
-    public void setRecipe_id(Integer recipe_id) {
-        this.recipe_id = recipe_id;
+    public void setRecipeId(String recipeId) {
+        this.recipeId = recipeId;
     }
 }

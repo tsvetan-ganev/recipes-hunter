@@ -30,21 +30,24 @@ public class DbContract extends SQLiteOpenHelper {
     /**
      * SQL statements
      */
-    public static final String CREATE_RECIPE_TABLE = "CREATE TABLE "
-            + RECIPE_TABLE + " (" + RECIPE_ID + " TEXT PRIMARY KEY, "
+    public static final String CREATE_RECIPE_TABLE =
+            "CREATE TABLE " + RECIPE_TABLE + " ("
+            + RECIPE_ID + " TEXT PRIMARY KEY, "
             + RECIPE_TITLE + " TEXT, "
             + RECIPE_PUBLISHER_NAME + " TEXT, "
             + RECIPE_SRC_URL + " TEXT, "
             + RECIPE_IMG_URL + " TEXT, "
-            + RECIPE_SOCIAL_RANK + " INTEGER)";
+            + RECIPE_SOCIAL_RANK + " INTEGER"
+            + ");";
 
-    public static final String CREATE_INGREDIENT_TABLE = "CREATE TABLE "
-            + INGREDIENT_TABLE + " ("
+    public static final String CREATE_INGREDIENT_TABLE =
+            "CREATE TABLE " + INGREDIENT_TABLE + " ("
             + INGREDIENT_ID + " INTEGER PRIMARY KEY, "
             + INGREDIENT_NAME + " TEXT, "
-            + INGREDIENT_RECIPE_ID + " TEXT, FOREIGN KEY("
-            + RECIPE_ID + ") REFERENCES "
-            + RECIPE_TABLE + "(id) )";
+            + INGREDIENT_RECIPE_ID + " TEXT, "
+            + "FOREIGN KEY(" + INGREDIENT_RECIPE_ID + ") REFERENCES "
+            + RECIPE_TABLE + "(" + RECIPE_ID + ")"
+            + ");";
 
     private static DbContract instance;
 

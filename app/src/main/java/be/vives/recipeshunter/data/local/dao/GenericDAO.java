@@ -9,4 +9,6 @@ public interface GenericDAO<PK, E> {
     E findById(PK id);
     void insert(E entity);
     void delete(PK id);
+    void open();
+    void close();
 }

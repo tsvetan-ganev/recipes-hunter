@@ -1,4 +1,4 @@
-package be.vives.recipeshunter.fragments;
+package be.vives.recipeshunter.fragments.main;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,13 +17,13 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.activities.FavouritesActivity;
-import be.vives.recipeshunter.activities.MainActivity;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.rest.DownloadRecipeDetailsAsyncTask;
+import be.vives.recipeshunter.data.services.DownloadRecipeDetailsAsyncTask;
 import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
 import be.vives.recipeshunter.utils.LayoutUtils;
@@ -52,7 +52,6 @@ public class RecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
 
-//        currentRecipeEntity = mListener.getSelectedRecipe()
         mCurrentRecipe = mListener.getSelectedRecipe();
 
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
@@ -114,6 +113,7 @@ public class RecipeDetailsFragment extends Fragment {
                     bundle.putString("recipe_img_url", recipeDetailsViewModel.getImageUrl());
                     bundle.putInt("recipe_social_rank", recipeDetailsViewModel.getSocialRank());
                     bundle.putString("recipe_src_url", recipeDetailsViewModel.getSourceUrl());
+                    bundle.putStringArrayList("recipe_ingredients", (ArrayList<String>) recipeAdditionalInfoViewModel.getIngredients());
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

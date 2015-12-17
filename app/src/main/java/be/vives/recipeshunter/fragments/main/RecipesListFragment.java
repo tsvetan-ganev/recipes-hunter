@@ -1,4 +1,4 @@
-package be.vives.recipeshunter.fragments;
+package be.vives.recipeshunter.fragments.main;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.rest.DownloadRecipesAsyncTask;
+import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class RecipesListFragment extends Fragment {
@@ -68,7 +68,6 @@ public class RecipesListFragment extends Fragment {
         ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                android.util.Log.d("Clicked item: ", mRecipesData.get(position).toString());
                 mListener.setRecipe(mRecipesData.get(position));
                 mListener.navigateToDetailsFragment();
             }
