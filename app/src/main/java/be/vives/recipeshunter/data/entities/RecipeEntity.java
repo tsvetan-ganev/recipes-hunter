@@ -68,14 +68,10 @@ public class RecipeEntity {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.id);
-        sb.append("\n\r");
-        sb.append(this.title);
-        sb.append("\n\r");
-        sb.append(this.publisherName);
-        sb.append("\n\r");
+        sb.append(this.id + " | ");
+        sb.append(this.title + " | ");
+        sb.append(this.publisherName + " | ");
         sb.append(this.socialRank);
-        sb.append("\n\r");
 
         return sb.toString();
     }

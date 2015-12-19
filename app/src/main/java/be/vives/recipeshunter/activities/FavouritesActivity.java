@@ -25,7 +25,9 @@ public class FavouritesActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favourites);
+        setContentView(R.layout.activity_main);
+
+        setTitle("Favourites");
 
         Bundle passedBundle = getIntent().getExtras();
         if (passedBundle != null) {

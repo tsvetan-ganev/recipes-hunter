@@ -11,7 +11,6 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment.FavouritesListFragmentListener;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment.RecipeDetailsFragmentListener;
 import be.vives.recipeshunter.fragments.main.RecipesListFragment;

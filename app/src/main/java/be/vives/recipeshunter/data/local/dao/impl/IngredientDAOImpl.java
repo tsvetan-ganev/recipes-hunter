@@ -9,10 +9,10 @@ import java.util.List;
 
 import be.vives.recipeshunter.data.entities.IngredientEntity;
 import be.vives.recipeshunter.data.local.DbContract;
-import be.vives.recipeshunter.data.local.RecipesHunterDb;
+import be.vives.recipeshunter.data.local.AppDb;
 import be.vives.recipeshunter.data.local.dao.IngredientDAO;
 
-public class IngredientDAOImpl extends RecipesHunterDb implements IngredientDAO {
+public class IngredientDAOImpl extends AppDb implements IngredientDAO {
     private static final String WHERE_ID_EQUALS = DbContract.INGREDIENT_ID
             + " = '";
 

@@ -1,30 +1,34 @@
 package be.vives.recipeshunter.fragments.main;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
+import be.vives.recipeshunter.data.services.AsyncResponse;
 import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
-public class RecipesListFragment extends Fragment {
+public class RecipesListFragment extends Fragment implements AsyncResponse<List<RecipeEntity>> {
     private String mSearchQuery = "";
     private List<RecipeEntity> mRecipesData;
 
     private RecipesListFragmentListener mListener;
 
+    private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -32,6 +36,8 @@ public class RecipesListFragment extends Fragment {
     private int mCurrentPage = 1;
     private boolean mIsLoading = false;
     private boolean mIsEndReached = false;
+
+    private DownloadRecipesAsyncTask mAsyncTask;
 
     public RecipesListFragment() {
 
@@ -43,26 +49,25 @@ public class RecipesListFragment extends Fragment {
 
         mSearchQuery = mListener.getQueryString();
         mRecipesData = new ArrayList<>();
+        mAsyncTask = new DownloadRecipesAsyncTask(mSearchQuery);
+        mAsyncTask.delegate = this;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
+
+        mProgressBar = (ProgressBar) view.findViewById(R.id.recipes_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recipes_list_recycler_view);
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        try {
-            if (mRecipesData.size() == 0) {
-                mRecipesData = new DownloadRecipesAsyncTask(mSearchQuery).execute().get();
-            }
+        if (mRecipesData.size() > 0) {
             mAdapter = new RecipesRecycleListAdapter(mRecipesData);
             mRecyclerView.setAdapter(mAdapter);
-        } catch (InterruptedException | ExecutionException ex) {
-            ex.printStackTrace();
         }
 
         ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
@@ -82,6 +87,11 @@ public class RecipesListFragment extends Fragment {
                 }
             }
         });
+
+        if (mAsyncTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mAsyncTask.execute();
+        }
 
         return view;
     }
@@ -104,28 +114,42 @@ public class RecipesListFragment extends Fragment {
     }
 
     private void onScrolledToBottom() {
-        android.util.Log.d("RecyclerView", "End is reached at page " + Integer.toString(mCurrentPage));
-        android.util.Log.d("RecyclerView", "Number of items: " + mRecipesData.size());
-
         if (mIsEndReached) {
             return;
         }
 
-        String newQuery = mSearchQuery + "&page=" + Integer.toString(++mCurrentPage);
-        try {
-            mIsLoading = true;
-            List<RecipeEntity> newlyLoadedRecipes = new DownloadRecipesAsyncTask(newQuery).execute().get();
-            mRecipesData.addAll(newlyLoadedRecipes);
-            mIsEndReached = newlyLoadedRecipes.isEmpty() ? true : false;
+        String newQuery = mSearchQuery + "&page=" + Integer.toString(mCurrentPage);
 
-            if (!mIsEndReached) {
-                mAdapter.notifyDataSetChanged();
-            }
-       } catch (InterruptedException | ExecutionException ex) {
-            ex.printStackTrace();
-        } finally {
-            mIsLoading = false;
+        if (!mIsLoading) {
+            mIsLoading = true;
+            mAsyncTask = new DownloadRecipesAsyncTask(newQuery);
+            mAsyncTask.delegate = this;
+            mAsyncTask.execute();
+        } else {
+            Log.d("ERROR", "LOADING!!!");
         }
+    }
+
+    @Override
+    public void resolve(List<RecipeEntity> result) {
+        if (result.isEmpty()) {
+            mIsEndReached = true;
+            mIsLoading = false;
+            return;
+        }
+        mRecipesData.addAll(result);
+
+        mCurrentPage += 1;
+
+        if (mAdapter == null) {
+            mAdapter = new RecipesRecycleListAdapter(mRecipesData);
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
+
+        mIsLoading = false;
+        mProgressBar.setVisibility(View.GONE);
     }
 
     public interface RecipesListFragmentListener {

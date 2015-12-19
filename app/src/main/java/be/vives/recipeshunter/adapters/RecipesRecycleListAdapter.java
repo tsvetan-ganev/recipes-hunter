@@ -5,9 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -21,7 +18,7 @@ import be.vives.recipeshunter.data.entities.RecipeEntity;
 
 public class RecipesRecycleListAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<RecipeEntity> mRecipesData;
+    protected List<RecipeEntity> mRecipesData;
     private DisplayImageOptions mImageOptions;
 
     public RecipesRecycleListAdapter(List<RecipeEntity> recipes) {
@@ -33,19 +30,19 @@ public class RecipesRecycleListAdapter
     }
 
     @Override
-    public RecipesRecycleListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_recipe, parent, false);
 
-        return new ViewHolder(view);
+        return new RecipeViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        final ViewHolder vh = (ViewHolder) holder;
+        final RecipeViewHolder vh = (RecipeViewHolder) holder;
         vh.mTitleTextView.setText(mRecipesData.get(position).getTitle());
         vh.mPublisherNameTextView.setText(mRecipesData.get(position).getPublisherName());
-        vh.mSocialRankTextView.setText(Integer.toString(mRecipesData.get(position).getSocialRank()) + "/100");
+        vh.mSocialRankTextView.setText(Integer.toString(mRecipesData.get(position).getSocialRank()) + " / 100");
 
         ImageLoader.getInstance().displayImage(
                 String.valueOf(mRecipesData.get(position).getImageUrl()),
@@ -69,23 +66,5 @@ public class RecipesRecycleListAdapter
     @Override
     public int getItemCount() {
         return mRecipesData.size();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTitleTextView;
-        public ImageView mImageView;
-        public TextView mPublisherNameTextView;
-        public TextView mSocialRankTextView;
-        public ProgressBar mImageLoadingSpinner;
-
-        public ViewHolder(View view) {
-            super(view);
-
-            mTitleTextView = (TextView) view.findViewById(R.id.list_item_recipe_title);
-            mImageView = (ImageView) view.findViewById(R.id.list_item_recipe_image);
-            mPublisherNameTextView = (TextView) view.findViewById(R.id.list_item_recipe_publisher_name);
-            mSocialRankTextView = (TextView) view.findViewById(R.id.list_item_recipe_social_rank);
-            mImageLoadingSpinner = (ProgressBar) view.findViewById(R.id.list_item_recipe_loading_spinner);
-        }
     }
 }

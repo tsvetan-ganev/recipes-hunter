@@ -10,12 +10,12 @@ import java.util.List;
 
 import be.vives.recipeshunter.data.local.DbContract;
 import be.vives.recipeshunter.data.local.dao.RecipeDAO;
-import be.vives.recipeshunter.data.local.RecipesHunterDb;
+import be.vives.recipeshunter.data.local.AppDb;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 
-public class RecipeDAOImpl extends RecipesHunterDb implements RecipeDAO {
+public class RecipeDAOImpl extends AppDb implements RecipeDAO {
     private static final String WHERE_ID_EQUALS = DbContract.RECIPE_ID
-            + " = '";
+            + " =?";
 
     public RecipeDAOImpl(Context context) {
         super(context);
@@ -67,8 +67,9 @@ public class RecipeDAOImpl extends RecipesHunterDb implements RecipeDAO {
                     DbContract.RECIPE_SOCIAL_RANK,
                     DbContract.RECIPE_SRC_URL
                 },
-                WHERE_ID_EQUALS + id + "'",
-                null, null, null,null);
+                WHERE_ID_EQUALS,
+                new String[] { id },
+                null, null,null);
 
         RecipeEntity recipe = null;
         if (result.moveToFirst()) {
@@ -99,6 +100,6 @@ public class RecipeDAOImpl extends RecipesHunterDb implements RecipeDAO {
 
     @Override
     public void delete(String id) {
-
+        database.delete(DbContract.RECIPE_TABLE, WHERE_ID_EQUALS, new String[] { id });
     }
 }

@@ -47,6 +47,7 @@ public class DbContract extends SQLiteOpenHelper {
             + INGREDIENT_RECIPE_ID + " TEXT, "
             + "FOREIGN KEY(" + INGREDIENT_RECIPE_ID + ") REFERENCES "
             + RECIPE_TABLE + "(" + RECIPE_ID + ")"
+            + " ON DELETE CASCADE "
             + ");";
 
     private static DbContract instance;

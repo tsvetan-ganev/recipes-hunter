@@ -26,16 +26,26 @@ public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, List<Recip
 
     private final String mBaseUrl = API_ENDPOINT + "search?key=" + API_KEY + "&q=";
 
-    private final String mQuery;
+    private String mQuery;
+
+    public AsyncResponse<List<RecipeEntity>> delegate;
 
     public DownloadRecipesAsyncTask(String query) {
         mQuery = query;
     }
 
     @Override
+    protected void onPostExecute(List<RecipeEntity> recipeEntities) {
+        if (delegate != null) {
+            delegate.resolve(recipeEntities);
+        }
+    }
+
+    @Override
     protected List<RecipeEntity> doInBackground(URL... params) {
         List<RecipeEntity> recipes = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
+
         Request req = new Request.Builder()
                 .url(mBaseUrl + mQuery)
                 .addHeader("Accept", "application/json")

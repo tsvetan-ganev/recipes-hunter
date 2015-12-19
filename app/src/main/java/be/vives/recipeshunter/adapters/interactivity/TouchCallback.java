@@ -9,6 +9,11 @@ public class TouchCallback extends ItemTouchHelper.Callback {
 
     private final SwipeableItemsAdapter mAdapter;
 
+    @Override
+    public boolean isLongPressDragEnabled() {
+        return false;
+    }
+
     public TouchCallback(SwipeableItemsAdapter mAdapter) {
         this.mAdapter = mAdapter;
     }
@@ -23,6 +28,11 @@ public class TouchCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
         return false;
+    }
+
+    @Override
+    public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
+        return 0.7f;
     }
 
     @Override
@@ -44,6 +54,33 @@ public class TouchCallback extends ItemTouchHelper.Callback {
             viewHolder.itemView.setTranslationX(dX);
         } else {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    }
+
+    @Override
+    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        // We only want the active item to change
+        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
+            if (viewHolder instanceof SwipeableViewHolder) {
+                // Let the view holder know that this item is being moved or dragged
+                SwipeableViewHolder itemViewHolder = (SwipeableViewHolder) viewHolder;
+                itemViewHolder.onItemSelected();
+            }
+        }
+
+        super.onSelectedChanged(viewHolder, actionState);
+    }
+
+    @Override
+    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        super.clearView(recyclerView, viewHolder);
+
+        viewHolder.itemView.setAlpha(ALPHA_FULL);
+
+        if (viewHolder instanceof SwipeableViewHolder) {
+            // Tell the view holder it's time to restore the idle state
+            SwipeableViewHolder itemViewHolder = (SwipeableViewHolder) viewHolder;
+            itemViewHolder.onItemReleased();
         }
     }
 }

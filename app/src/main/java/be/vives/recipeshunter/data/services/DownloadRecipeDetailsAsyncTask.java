@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 
 public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeAdditionalInfoViewModel> {
@@ -26,6 +27,8 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeA
     private final String mBaseUrl = API_ENDPOINT + "get?key=" + API_KEY + "&rId=";
 
     private final String mRecipeId;
+
+    public AsyncResponse<RecipeAdditionalInfoViewModel> delegate;
 
     public DownloadRecipeDetailsAsyncTask(String recipeId) {
         mRecipeId = recipeId;
@@ -64,5 +67,10 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeA
         }
 
         return detailsViewModel;
+    }
+
+    @Override
+    protected void onPostExecute(RecipeAdditionalInfoViewModel result) {
+        delegate.resolve(result);
     }
 }
