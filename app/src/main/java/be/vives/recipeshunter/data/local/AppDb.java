@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import be.vives.recipeshunter.data.local.DbContract;
 
-public abstract class RecipesHunterDb {
+public abstract class AppDb {
     private static final String DROP_RECIPE_TABLE = "DROP TABLE IF EXISTS " + DbContract.RECIPE_TABLE;
     private static final String DROP_INGREDIENT_TABLE = "DROP TABLE IF EXISTS " + DbContract.INGREDIENT_TABLE;
 
@@ -15,7 +15,7 @@ public abstract class RecipesHunterDb {
     private Context mContext;
     private boolean isOpen = false;
 
-    public RecipesHunterDb(Context context) {
+    public AppDb(Context context) {
         this.mContext = context;
         dbHelper = DbContract.getHelper(mContext);
         open();
