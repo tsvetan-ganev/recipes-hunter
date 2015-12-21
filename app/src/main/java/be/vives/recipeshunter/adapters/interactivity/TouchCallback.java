@@ -32,7 +32,7 @@ public class TouchCallback extends ItemTouchHelper.Callback {
 
     @Override
     public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
-        return 0.7f;
+        return 0.9f;
     }
 
     @Override

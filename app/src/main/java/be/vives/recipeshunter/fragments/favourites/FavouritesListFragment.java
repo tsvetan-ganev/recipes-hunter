@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,7 @@ public class FavouritesListFragment extends Fragment {
             @Override
             public void remove(RecipeEntity entity) {
                 new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId()).execute();
+                Toast.makeText(getContext(), entity.getTitle() + " removed from favourites.", Toast.LENGTH_SHORT).show();
             }
         };
 

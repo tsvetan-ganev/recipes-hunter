@@ -1,8 +1,13 @@
 package be.vives.recipeshunter.adapters;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.interactivity.OnItemDismissedListener;
 import be.vives.recipeshunter.adapters.interactivity.SwipeableItemsAdapter;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
@@ -15,6 +20,14 @@ public class SwipeableRecipesRecyclerListAdapter extends RecipesRecycleListAdapt
     public SwipeableRecipesRecyclerListAdapter(List<RecipeEntity> recipes) {
         super(recipes);
         mRemovedRecipes = new ArrayList<>();
+    }
+
+    @Override
+    public RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_recipe_cardview, parent, false);
+
+            return new RecipeViewHolder(view);
     }
 
     @Override

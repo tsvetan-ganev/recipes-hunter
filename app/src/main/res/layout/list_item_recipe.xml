@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/selectableItemBackground"
+    android:focusable="true"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp">>
+
+        <TextView
+            android:id="@+id/list_item_recipe_title"
+            style="@style/TextHeadline.Dark"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/list_item_recipe_image"
+            android:hint="@string/hint_recipe_name"
+            android:paddingRight="18dp"
+            android:paddingTop="24dp" />
+
+        <TextView
+            android:id="@+id/list_item_recipe_publisher_name"
+            style="@style/TextSubheading.Dark"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/list_item_recipe_title"
+            android:layout_toLeftOf="@+id/list_item_recipe_image"
+            android:hint="@string/hint_publisher_name"
+            android:paddingRight="18dp" />
+
+        <TextView
+            android:id="@+id/list_item_recipe_social_rank"
+            style="@style/TextBody.Dark"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/list_item_recipe_publisher_name"
+            android:hint="@string/hint_social_rank"
+            android:paddingBottom="24dp" />
+
+        <ProgressBar
+            android:id="@+id/list_item_recipe_loading_spinner"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:paddingTop="16dp" />
+
+        <ImageView
+            android:id="@+id/list_item_recipe_image"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:adjustViewBounds="true"
+            android:paddingBottom="24dp"
+            android:paddingTop="24dp"
+            android:scaleType="centerCrop" />
+
+    </RelativeLayout>
+
+    <View
+        style="@style/HorizontalLine.Dark"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="24dp" />
+
+</LinearLayout>

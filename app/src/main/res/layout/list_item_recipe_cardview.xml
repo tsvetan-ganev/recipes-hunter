@@ -23,6 +23,7 @@
 
             <TextView
                 android:paddingTop="24dp"
+                android:paddingRight="18dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/list_item_recipe_image"
@@ -37,6 +38,7 @@
                 android:layout_below="@+id/list_item_recipe_title"
                 android:layout_toLeftOf="@+id/list_item_recipe_image"
                 android:hint="@string/hint_publisher_name"
+                android:paddingRight="18dp"
                 android:textColor="#FFFFFF"
                 style="@style/TextSubheading"
                 android:id="@+id/list_item_recipe_publisher_name"
@@ -60,7 +62,7 @@
                 android:layout_alignParentEnd="true" />
 
             <ImageView
-                android:layout_width="120dp"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:paddingTop="24dp"
                 android:scaleType="centerCrop"
@@ -69,6 +71,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:id="@+id/list_item_recipe_image"/>
+
         </RelativeLayout>
 
 </android.support.v7.widget.CardView>
