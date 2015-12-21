@@ -66,7 +66,7 @@ public class FavouritesAddRecipeFragment extends Fragment {
         mRecipeDao.close();
 
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_placeholder, new FavouritesListFragment())
+                .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())
                 .commit();
 
         return null;
