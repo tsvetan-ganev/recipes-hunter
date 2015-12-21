@@ -23,4 +23,5 @@
         style="@style/FragmentContainer"
         android:id="@+id/fragment_placeholder">
     </FrameLayout>
+
 </android.support.design.widget.CoordinatorLayout>

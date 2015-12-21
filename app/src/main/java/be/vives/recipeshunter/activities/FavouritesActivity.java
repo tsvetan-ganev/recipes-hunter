@@ -25,7 +25,7 @@ public class FavouritesActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_favourites);
 
         setTitle("Favourites");
 
@@ -54,12 +54,12 @@ public class FavouritesActivity extends AppCompatActivity implements
         if (mToBeAddedToFavourites != null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_placeholder, new FavouritesAddRecipeFragment())
+                    .replace(R.id.fragment_favourites_placeholder, new FavouritesAddRecipeFragment())
                     .commit();
         } else {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_placeholder, new FavouritesListFragment())
+                    .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())
                     .commit();
         }
 
@@ -81,7 +81,7 @@ public class FavouritesActivity extends AppCompatActivity implements
     public void navigateToDetailsFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_placeholder, new FavouritesRecipeDetailsFragment())
+                .replace(R.id.fragment_favourites_placeholder, new FavouritesRecipeDetailsFragment())
                 .addToBackStack("fav_details")
                 .commit();
     }

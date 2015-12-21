@@ -3,7 +3,6 @@ package be.vives.recipeshunter.data.local.dao.impl;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +45,6 @@ public class RecipeDAOImpl extends AppDb implements RecipeDAO {
             recipe.setSourceUrl(result.getString(5));
 
             recipes.add(recipe);
-        }
-
-        for (RecipeEntity r :
-                recipes) {
-            Log.d("DB_FIND_ALL", r.toString());
         }
 
         return recipes;

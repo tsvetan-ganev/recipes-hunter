@@ -1,5 +1,6 @@
 package be.vives.recipeshunter.adapters;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -17,6 +18,8 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
     public TextView mPublisherNameTextView;
     public TextView mSocialRankTextView;
     public ProgressBar mImageLoadingSpinner;
+
+    private static final int mBgColor = R.color.cardViewBG;
 
     public RecipeViewHolder(View view) {
         super(view);
@@ -36,6 +39,7 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
 
     @Override
     public void onItemReleased() {
-        itemView.setBackgroundColor(Color.BLUE);
+        // TODO: Use resources
+        itemView.setBackgroundColor(Color.parseColor("#227586"));
     }
 }

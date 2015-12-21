@@ -1,26 +1,37 @@
 package be.vives.recipeshunter.adapters;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import be.vives.recipeshunter.adapters.interactivity.OnItemDismissedListener;
 import be.vives.recipeshunter.adapters.interactivity.SwipeableItemsAdapter;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 
-/**
- * Created by tsetso on 19.12.15.
- */
-public class SwipeableRecipesRecyclerListAdapter extends RecipesRecycleListAdapter implements SwipeableItemsAdapter {
+public class SwipeableRecipesRecyclerListAdapter extends RecipesRecycleListAdapter implements SwipeableItemsAdapter<RecipeEntity> {
+    private List<RecipeEntity> mRemovedRecipes;
+
+    public OnItemDismissedListener delegate;
 
     public SwipeableRecipesRecyclerListAdapter(List<RecipeEntity> recipes) {
         super(recipes);
+        mRemovedRecipes = new ArrayList<>();
     }
 
     @Override
-    public void onItemDismiss(int position) {
-        removeItemAt(position);
+    public RecipeEntity onItemDismiss(int position) {
+        RecipeEntity removedRecipe = removeItemAt(position);
+        mRemovedRecipes.add(removedRecipe);
+
+        delegate.remove(removedRecipe);
+
+        return removedRecipe;
     }
 
-    private void removeItemAt(int position) {
-        mRecipesData.remove(position);
+    private RecipeEntity removeItemAt(int position) {
+        RecipeEntity removedRecipe = mRecipesData.remove(position);
         notifyItemRemoved(position);
+
+        return removedRecipe;
     }
+
 }

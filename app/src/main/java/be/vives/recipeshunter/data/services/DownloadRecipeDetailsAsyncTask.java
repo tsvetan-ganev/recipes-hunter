@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 
 public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeAdditionalInfoViewModel> {

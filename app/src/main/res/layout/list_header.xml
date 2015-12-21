@@ -3,12 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    style="@style/TextHeadline"
     android:layout_gravity="center"
     android:textAlignment="center"
     android:layout_marginTop="10dp"
     android:padding="10dp"
-    android:hint="Header"
-    android:textSize="24dp"
     android:textStyle="bold"
     android:id="@+id/list_view_header"
     >

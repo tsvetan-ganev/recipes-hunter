@@ -21,32 +21,26 @@
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/TextDisplay2"
             android:textAlignment="center"
-            android:hint="Recipe name"
+            android:hint="@string/hint_recipe_name"
             android:layout_gravity="center"
-            android:textSize="42sp"
             android:id="@+id/recipe_details_title"
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/TextDisplay1"
             android:textAlignment="center"
-            android:hint="Publisher name"
+            android:hint="@string/hint_publisher_name"
             android:layout_gravity="center"
-            android:textSize="30dp"
             android:id="@+id/recipe_details_publisher_name"
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/TextHeadline"
             android:layout_gravity="center"
             android:textAlignment="center"
-            android:hint="Social rank"
-            android:textSize="24dp"
+            android:hint="@string/hint_social_rank"
             android:id="@+id/recipe_details_social_rank"
             />
 
@@ -55,7 +49,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:layout_gravity="center"
-            android:text="Show instructions"
+            android:text="@string/recipe_details_show_instructions"
             android:id="@+id/recipe_details_source_url"
             />
 

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,25 +21,31 @@ import be.vives.recipeshunter.data.services.AsyncResponse;
 import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
-public class RecipesListFragment extends Fragment implements AsyncResponse<List<RecipeEntity>> {
-    private String mSearchQuery = "";
-    private List<RecipeEntity> mRecipesData;
+public class RecipesListFragment extends Fragment {
 
-    private RecipesListFragmentListener mListener;
-
+    // widgets
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
+    // data
+    private String mSearchQuery = "";
+    private List<RecipeEntity> mRecipesList;
+
+    // interaction listener for MainActivity
+    private RecipesListFragmentListener mListener;
+
+    // endless scrolling variables
     private int mCurrentPage = 1;
     private boolean mIsLoading = false;
     private boolean mIsEndReached = false;
 
+    // async task for downloading recipes data
     private DownloadRecipesAsyncTask mAsyncTask;
+    private AsyncResponse<List<RecipeEntity>> mAsyncTaskDelegate;
 
     public RecipesListFragment() {
-
     }
 
     @Override
@@ -48,9 +53,34 @@ public class RecipesListFragment extends Fragment implements AsyncResponse<List<
         super.onCreate(savedInstanceState);
 
         mSearchQuery = mListener.getQueryString();
-        mRecipesData = new ArrayList<>();
+        mRecipesList = new ArrayList<>();
         mAsyncTask = new DownloadRecipesAsyncTask(mSearchQuery);
-        mAsyncTask.delegate = this;
+
+        mAsyncTaskDelegate = new AsyncResponse<List<RecipeEntity>>() {
+            @Override
+            public void resolve(List<RecipeEntity> result) {
+                if (result.isEmpty()) {
+                    mIsEndReached = true;
+                    mIsLoading = false;
+                    return;
+                }
+                mRecipesList.addAll(result);
+
+                mCurrentPage += 1;
+
+                if (mAdapter == null) {
+                    mAdapter = new RecipesRecycleListAdapter(mRecipesList);
+                    mRecyclerView.setAdapter(mAdapter);
+                } else {
+                    mAdapter.notifyDataSetChanged();
+                }
+
+                mIsLoading = false;
+                mProgressBar.setVisibility(View.GONE);
+            }
+        };
+
+        mAsyncTask.delegate = mAsyncTaskDelegate;
     }
 
     @Override
@@ -65,15 +95,15 @@ public class RecipesListFragment extends Fragment implements AsyncResponse<List<
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        if (mRecipesData.size() > 0) {
-            mAdapter = new RecipesRecycleListAdapter(mRecipesData);
+        if (mRecipesList.size() > 0) {
+            mAdapter = new RecipesRecycleListAdapter(mRecipesList);
             mRecyclerView.setAdapter(mAdapter);
         }
 
         ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                mListener.setRecipe(mRecipesData.get(position));
+                mListener.setRecipe(mRecipesList.get(position));
                 mListener.navigateToDetailsFragment();
             }
         });
@@ -123,33 +153,9 @@ public class RecipesListFragment extends Fragment implements AsyncResponse<List<
         if (!mIsLoading) {
             mIsLoading = true;
             mAsyncTask = new DownloadRecipesAsyncTask(newQuery);
-            mAsyncTask.delegate = this;
+            mAsyncTask.delegate = mAsyncTaskDelegate;
             mAsyncTask.execute();
-        } else {
-            Log.d("ERROR", "LOADING!!!");
         }
-    }
-
-    @Override
-    public void resolve(List<RecipeEntity> result) {
-        if (result.isEmpty()) {
-            mIsEndReached = true;
-            mIsLoading = false;
-            return;
-        }
-        mRecipesData.addAll(result);
-
-        mCurrentPage += 1;
-
-        if (mAdapter == null) {
-            mAdapter = new RecipesRecycleListAdapter(mRecipesData);
-            mRecyclerView.setAdapter(mAdapter);
-        } else {
-            mAdapter.notifyDataSetChanged();
-        }
-
-        mIsLoading = false;
-        mProgressBar.setVisibility(View.GONE);
     }
 
     public interface RecipesListFragmentListener {

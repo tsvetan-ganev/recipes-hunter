@@ -22,34 +22,29 @@
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:paddingTop="24dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/list_item_recipe_image"
-                android:hint="Recipe name"
+                android:hint="@string/hint_recipe_name"
                 android:textColor="#FFFFFF"
-                android:textSize="24sp"
+                style="@style/TextHeadline"
                 android:id="@+id/list_item_recipe_title"
                 />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/list_item_recipe_title"
                 android:layout_toLeftOf="@+id/list_item_recipe_image"
-                android:hint="Publisher name"
+                android:hint="@string/hint_publisher_name"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                style="@style/TextSubheading"
                 android:id="@+id/list_item_recipe_publisher_name"
                 />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="X/100"
+                style="@style/TextBody"
+                android:hint="@string/hint_social_rank"
                 android:textColor="#FFFFFF"
                 android:id="@+id/list_item_recipe_social_rank"
                 android:layout_below="@+id/list_item_recipe_publisher_name"

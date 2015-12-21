@@ -33,12 +33,12 @@ public class FavouritesAddRecipeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mTransferedRecipe = mListener.getFavouriteRecipe();
-        RecipeEntity recipe = new RecipeEntity();
+        final RecipeEntity recipe = new RecipeEntity();
 
-        // insert recipe
         mRecipeDao.open();
 
-        // if already exists
+        // // TODO: 20.12.15 Handle insertion of duplicate entries
+        // if already exists -> handle it somehow
         if (mRecipeDao.findById(mTransferedRecipe.getId()) != null) {
             mRecipeDao.close();
             return null;
@@ -51,7 +51,6 @@ public class FavouritesAddRecipeFragment extends Fragment {
         recipe.setImageUrl(mTransferedRecipe.getImageUrl());
         recipe.setSocialRank(mTransferedRecipe.getSocialRank());
         mRecipeDao.insert(recipe);
-        mRecipeDao.close();
 
         // insert recipe ingredients
         mIngredientDao.open();
@@ -64,10 +63,11 @@ public class FavouritesAddRecipeFragment extends Fragment {
         }
         mIngredientDao.close();
 
+        mRecipeDao.close();
 
         getFragmentManager().beginTransaction()
-            .replace(R.id.fragment_placeholder, new FavouritesListFragment())
-            .commit();
+                .replace(R.id.fragment_placeholder, new FavouritesListFragment())
+                .commit();
 
         return null;
     }
@@ -84,6 +84,7 @@ public class FavouritesAddRecipeFragment extends Fragment {
 
     public interface OnRecipeAddedToFavouritesListener {
         RecipeDetailsViewModel getFavouriteRecipe();
+
         void navigateToFavouritesList();
     }
 }

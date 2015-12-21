@@ -28,8 +28,9 @@ import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
 import be.vives.recipeshunter.utils.LayoutUtils;
 
-public class RecipeDetailsFragment extends Fragment implements AsyncResponse<RecipeAdditionalInfoViewModel> {
+public class RecipeDetailsFragment extends Fragment {
 
+    // widgets
     private ImageView mImageView;
     private TextView mTitleTextView;
     private TextView mPublisherNameTextView;
@@ -38,16 +39,17 @@ public class RecipeDetailsFragment extends Fragment implements AsyncResponse<Rec
     private Button mAddToFavouritesButton;
     private TextView mSocialRankTextView;
 
+    // data
     private Bundle mSavedInstance;
-
     private DisplayImageOptions mImageOptions;
-
     private RecipeEntity mCurrentRecipe;
 
+    // interaction listener for MainActivity
     private RecipeDetailsFragmentListener mListener;
 
+    // download recipe details async task
     private DownloadRecipeDetailsAsyncTask mAsyncTask;
-
+    private AsyncResponse<RecipeAdditionalInfoViewModel> mAsyncTaskDelegate;
 
     public RecipeDetailsFragment() {
         mImageOptions = new DisplayImageOptions.Builder().build();
@@ -63,7 +65,68 @@ public class RecipeDetailsFragment extends Fragment implements AsyncResponse<Rec
         mCurrentRecipe = mListener.getSelectedRecipe();
 
         mAsyncTask = new DownloadRecipeDetailsAsyncTask(mCurrentRecipe.getId());
-        mAsyncTask.delegate = this;
+        // TODODOTODO
+        mAsyncTaskDelegate = new AsyncResponse<RecipeAdditionalInfoViewModel>() {
+            @Override
+            public void resolve(RecipeAdditionalInfoViewModel result) {
+                final RecipeAdditionalInfoViewModel recipeAdditionalInfoViewModel;
+
+                // Download recipe details
+                recipeAdditionalInfoViewModel = result;
+
+                if (recipeAdditionalInfoViewModel.getIngredients() == null) {
+                    recipeAdditionalInfoViewModel.setIngredients(new ArrayList<String>());
+                }
+
+                // set up ingredients list header
+                View listViewHeader = getLayoutInflater(mSavedInstance).inflate(R.layout.list_header, null);
+                TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
+                listViewHeaderTextView.setText("Ingredients");
+                mIngredientsListView.addHeaderView(listViewHeader);
+
+                // set up ingredients list view
+                mIngredientsListView.setAdapter(new ArrayAdapter<>(
+                        getContext(), R.layout.list_item_string, recipeAdditionalInfoViewModel.getIngredients()));
+                mIngredientsListView.setOnItemClickListener(null);
+                LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
+
+                // set URL for the "view instructions" button
+                mOpenSourceUrlButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openUrlInBrowser(Uri.parse(recipeAdditionalInfoViewModel.getSourceUrl()));
+                    }
+
+                    public void openUrlInBrowser(Uri url) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                            startActivity(intent);
+                        }
+                    }
+                });
+
+                mAddToFavouritesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final RecipeDetailsViewModel recipeDetailsViewModel =
+                                new RecipeDetailsViewModel(mCurrentRecipe, recipeAdditionalInfoViewModel);
+
+                        Intent intent = new Intent(getContext(), FavouritesActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("recipe_id", recipeDetailsViewModel.getId());
+                        bundle.putString("recipe_title", recipeDetailsViewModel.getTitle());
+                        bundle.putString("recipe_publisher_name", recipeDetailsViewModel.getPublisherName());
+                        bundle.putString("recipe_img_url", recipeDetailsViewModel.getImageUrl());
+                        bundle.putInt("recipe_social_rank", recipeDetailsViewModel.getSocialRank());
+                        bundle.putString("recipe_src_url", recipeDetailsViewModel.getSourceUrl());
+                        bundle.putStringArrayList("recipe_ingredients", (ArrayList<String>) recipeAdditionalInfoViewModel.getIngredients());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
+                });
+            }
+        };
+        mAsyncTask.delegate = mAsyncTaskDelegate;
         mAsyncTask.execute();
 
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
@@ -97,60 +160,6 @@ public class RecipeDetailsFragment extends Fragment implements AsyncResponse<Rec
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void resolve(RecipeAdditionalInfoViewModel result) {
-        final RecipeAdditionalInfoViewModel recipeAdditionalInfoViewModel;
-
-        // Download recipe details
-        recipeAdditionalInfoViewModel = result;
-
-        // Populate the details view model
-        final RecipeDetailsViewModel recipeDetailsViewModel =
-                new RecipeDetailsViewModel(mCurrentRecipe, recipeAdditionalInfoViewModel);
-
-        // set up ingredients list view
-        View listViewHeader = this.getLayoutInflater(mSavedInstance).inflate(R.layout.list_header, null);
-        TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
-        listViewHeaderTextView.setText("Ingredients");
-        mIngredientsListView.addHeaderView(listViewHeader);
-        mIngredientsListView.setAdapter(new ArrayAdapter<>(
-                getContext(), R.layout.list_item_string, recipeDetailsViewModel.getIngredients()));
-        mIngredientsListView.setOnItemClickListener(null);
-        LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-
-        // set URL for the "view instructions" button
-        mOpenSourceUrlButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openUrlInBrowser(Uri.parse(recipeDetailsViewModel.getSourceUrl()));
-            }
-
-            public void openUrlInBrowser(Uri url) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                }
-            }
-        });
-
-        mAddToFavouritesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), FavouritesActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("recipe_id", recipeDetailsViewModel.getId());
-                bundle.putString("recipe_title", recipeDetailsViewModel.getTitle());
-                bundle.putString("recipe_publisher_name", recipeDetailsViewModel.getPublisherName());
-                bundle.putString("recipe_img_url", recipeDetailsViewModel.getImageUrl());
-                bundle.putInt("recipe_social_rank", recipeDetailsViewModel.getSocialRank());
-                bundle.putString("recipe_src_url", recipeDetailsViewModel.getSourceUrl());
-                bundle.putStringArrayList("recipe_ingredients", (ArrayList<String>) recipeAdditionalInfoViewModel.getIngredients());
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
     }
 
     public interface RecipeDetailsFragmentListener {

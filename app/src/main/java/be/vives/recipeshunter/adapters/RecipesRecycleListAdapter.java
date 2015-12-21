@@ -32,7 +32,7 @@ public class RecipesRecycleListAdapter
     @Override
     public RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_recipe, parent, false);
+                .inflate(R.layout.list_item_recipe_cardview, parent, false);
 
         return new RecipeViewHolder(view);
     }

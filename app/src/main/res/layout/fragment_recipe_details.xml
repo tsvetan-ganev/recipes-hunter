@@ -21,32 +21,23 @@
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:hint="Recipe name"
             android:layout_gravity="center"
-            android:textSize="42sp"
+            style="@style/TextDisplay2"
             android:id="@+id/recipe_details_title"
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:hint="Publisher name"
             android:layout_gravity="center"
-            android:textSize="30dp"
+            style="@style/TextDisplay1"
             android:id="@+id/recipe_details_publisher_name"
             />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textAlignment="center"
-            android:hint="Social rank"
-            android:textSize="24dp"
+            style="@style/TextHeadline"
             android:id="@+id/recipe_details_social_rank"
             />
 
@@ -55,22 +46,25 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal">
+
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="Show instructions"
+                android:text="@string/recipe_details_show_instructions"
                 android:id="@+id/recipe_details_source_url"
                 />
+
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="Add to favourites"
+                android:text="@string/recipe_details_add_to_favs"
                 android:id="@+id/recipe_details_favs_button"
                 />
+
         </LinearLayout>
 
         <ListView
@@ -78,9 +72,9 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginBottom="30dp"
-            android:id="@+id/recipe_details_ingredients_list">
+            android:id="@+id/recipe_details_ingredients_list"
+            />
 
-        </ListView>
     </LinearLayout>
 </ScrollView>
 

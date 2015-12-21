@@ -6,5 +6,9 @@
     <string name="search_recipe_favourites_button">Favourites</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="recipe_details_show_instructions">Show instructions</string>
+    <string name="recipe_details_add_to_favs">Add to favourites</string>
+    <string name="hint_recipe_name">Recipe name</string>
+    <string name="hint_publisher_name">Publisher name</string>
+    <string name="hint_social_rank">X/100</string>
 </resources>

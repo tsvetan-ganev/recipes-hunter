@@ -37,11 +37,4 @@
         android:id="@+id/search_recipe_favourites_button"
         />
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:progressBarStyleLargeInverse"
-        android:visibility="gone"
-        android:id="@+id/search_progress_bar"
-        />
 </LinearLayout>

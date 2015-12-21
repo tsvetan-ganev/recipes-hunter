@@ -1,5 +1,5 @@
 package be.vives.recipeshunter.adapters.interactivity;
 
-public interface SwipeableItemsAdapter {
-    void onItemDismiss(int position);
+public interface SwipeableItemsAdapter<T> {
+    T onItemDismiss(int position);
 }

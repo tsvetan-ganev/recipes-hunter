@@ -19,16 +19,22 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.local.dao.IngredientDAO;
 import be.vives.recipeshunter.data.local.dao.impl.IngredientDAOImpl;
+import be.vives.recipeshunter.data.services.AsyncResponse;
+import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
+import be.vives.recipeshunter.data.services.GetIngredientsByRecipeIdAsyncTask;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
 import be.vives.recipeshunter.utils.LayoutUtils;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FavouritesRecipeDetailsFragment extends Fragment {
+public class FavouritesRecipeDetailsFragment extends Fragment implements AsyncResponse<List<String>> {
     private ImageView mImageView;
     private TextView mTitleTextView;
     private TextView mPublisherNameTextView;
@@ -37,8 +43,9 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     private TextView mSocialRankTextView;
 
     private FavouritesRecipeDetailsListener mListener;
+    private GetIngredientsByRecipeIdAsyncTask mAsyncTask;
 
-    private IngredientDAO mIngredientDao;
+    private Bundle mSavedInstance;
 
     public FavouritesRecipeDetailsFragment() {
         // Required empty public constructor
@@ -47,7 +54,6 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIngredientDao = new IngredientDAOImpl(getActivity());
     }
 
     @Override
@@ -55,8 +61,12 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_recipe_details, container, false);
 
+        mSavedInstance = savedInstanceState;
         final RecipeDetailsViewModel recipeDetails = mListener.getRecipeDetails();
-        Log.d("Received data: ", mListener.getRecipeDetails().toString());
+
+        mAsyncTask = new GetIngredientsByRecipeIdAsyncTask(getActivity(), recipeDetails.getId());
+        mAsyncTask.delegate = this;
+        mAsyncTask.execute();
 
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
         mTitleTextView = (TextView) view.findViewById(R.id.recipe_details_title);
@@ -70,19 +80,6 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
         mPublisherNameTextView.setText(recipeDetails.getPublisherName());
         mSocialRankTextView.setText(recipeDetails.getSocialRank() + " / 100");
         ImageLoader.getInstance().displayImage(recipeDetails.getImageUrl(), mImageView, DisplayImageOptions.createSimple());
-
-        // ingredients list view
-        View listViewHeader = this.getLayoutInflater(savedInstanceState).inflate(R.layout.list_header, null);
-        TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
-        listViewHeaderTextView.setText("Ingredients");
-
-        mIngredientDao.open();
-        mIngredientsListView.setAdapter(new ArrayAdapter<>(
-                getContext(), R.layout.list_item_string, mIngredientDao.findAllByRecipeId(recipeDetails.getId())));
-        mIngredientsListView.setOnItemClickListener(null);
-        mIngredientsListView.addHeaderView(listViewHeader);
-        LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-        mIngredientDao.close();
 
         // set URL for the "view instructions" button
         mOpenSourceUrlButton.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +113,20 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void resolve(List<String> result) {
+        // ingredients list view
+        View listViewHeader = this.getLayoutInflater(mSavedInstance).inflate(R.layout.list_header, null);
+        TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
+        listViewHeaderTextView.setText("Ingredients");
+
+        mIngredientsListView.setAdapter(new ArrayAdapter<>(
+                getContext(), R.layout.list_item_string, result));
+        mIngredientsListView.setOnItemClickListener(null);
+        mIngredientsListView.addHeaderView(listViewHeader);
+        LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
     }
 
     public interface FavouritesRecipeDetailsListener {
