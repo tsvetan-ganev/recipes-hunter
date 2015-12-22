@@ -26,20 +26,31 @@ import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class FavouritesListFragment extends Fragment {
-    private List<RecipeEntity> mFavouriteRecipes;
 
+    // data
+    private ArrayList<RecipeEntity> mFavouriteRecipes;
+
+    // UI widgets
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private SwipeableRecipesRecyclerListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
+    // interaction listeners
     private FavouritesListFragmentListener mListener;
     private ItemTouchHelper mItemSwipeListener;
 
+    // async task
     private GetFavouriteRecipesAsyncTask mAsyncTask;
 
     public FavouritesListFragment() {
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("favourite_recipes", mFavouriteRecipes);
     }
 
     @Override
@@ -53,9 +64,11 @@ public class FavouritesListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
+        // set up UI widgets
         mProgressBar = (ProgressBar) view.findViewById(R.id.favourites_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.favourites_list_recycler_view);
 
+        // set up the async task
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
         mAsyncTask.delegate = new AsyncResponse<List<RecipeEntity>>() {
             @Override
@@ -79,22 +92,8 @@ public class FavouritesListFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
 
         // UI listeners
-        ItemClickSupport.addTo(mRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-            @Override
-            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                mListener.setRecipe(mFavouriteRecipes.get(position));
-                mFavouriteRecipes.clear();
-                mListener.navigateToDetailsFragment();
-            }
-        });
-
-        mAdapter.delegate = new OnItemDismissedListener<RecipeEntity>() {
-            @Override
-            public void remove(RecipeEntity entity) {
-                new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId()).execute();
-                Toast.makeText(getContext(), entity.getTitle() + " removed from favourites.", Toast.LENGTH_SHORT).show();
-            }
-        };
+        setOnItemClickedListener(mRecyclerView);
+        setOnItemDismissedListener(mAdapter);
 
         TouchCallback callback = new TouchCallback(mAdapter);
         mItemSwipeListener = new ItemTouchHelper(callback);
@@ -117,6 +116,27 @@ public class FavouritesListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void setOnItemDismissedListener(SwipeableRecipesRecyclerListAdapter adapter) {
+        adapter.delegate = new OnItemDismissedListener<RecipeEntity>() {
+            @Override
+            public void remove(RecipeEntity entity) {
+                new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId()).execute();
+                Toast.makeText(getContext(), entity.getTitle() + " removed from favourites.", Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private void setOnItemClickedListener(RecyclerView recyclerView) {
+        ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                mListener.setRecipe(mFavouriteRecipes.get(position));
+                mFavouriteRecipes.clear();
+                mListener.navigateToDetailsFragment();
+            }
+        });
     }
 
     public interface FavouritesListFragmentListener {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.activities.FavouritesActivity;
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.services.AsyncResponse;
 import be.vives.recipeshunter.data.services.DownloadRecipeDetailsAsyncTask;
@@ -40,7 +42,6 @@ public class RecipeDetailsFragment extends Fragment {
     private TextView mSocialRankTextView;
 
     // data
-    private Bundle mSavedInstance;
     private DisplayImageOptions mImageOptions;
     private RecipeEntity mCurrentRecipe;
 
@@ -49,6 +50,7 @@ public class RecipeDetailsFragment extends Fragment {
 
     // download recipe details async task
     private DownloadRecipeDetailsAsyncTask mAsyncTask;
+
     private AsyncResponse<RecipeAdditionalInfoViewModel> mAsyncTaskDelegate;
 
     public RecipeDetailsFragment() {
@@ -56,37 +58,78 @@ public class RecipeDetailsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mCurrentRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
+            Log.d(this.getClass().getSimpleName(), "onActivityCreated: " + mCurrentRecipe.toString());
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE, mCurrentRecipe);
+        outState.putString(Constants.BUNDLE_ITEM_LAST_FRAGMENT_VISITED, Constants.FRAGMENT_MAIN_RECIPE_DETAILS);
+
+        Log.d(this.getClass().getSimpleName(), "onSaveInstanceState: " + mCurrentRecipe.toString());
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mCurrentRecipe = mListener.getSelectedRecipe();
+
+        if (mCurrentRecipe == null && savedInstanceState != null) {
+            mCurrentRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
+        }
+    }
+
+    @Override
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
 
-        mSavedInstance = savedInstanceState;
 
         mCurrentRecipe = mListener.getSelectedRecipe();
 
+        // set up UI widgets
+        mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
+        mTitleTextView = (TextView) view.findViewById(R.id.recipe_details_title);
+        mIngredientsListView = (ListView) view.findViewById(R.id.recipe_details_ingredients_list);
+        mPublisherNameTextView = (TextView) view.findViewById(R.id.recipe_details_publisher_name);
+        mOpenSourceUrlButton = (Button) view.findViewById(R.id.recipe_details_source_url);
+        mAddToFavouritesButton = (Button) view.findViewById(R.id.recipe_details_favs_button);
+        mSocialRankTextView = (TextView) view.findViewById(R.id.recipe_details_social_rank);
+
+        // set the known recipe properties
+        mTitleTextView.setText(mCurrentRecipe.getTitle());
+        mPublisherNameTextView.setText(mCurrentRecipe.getPublisherName());
+        mSocialRankTextView.setText(mCurrentRecipe.getSocialRank() + " / 100");
+        ImageLoader.getInstance().displayImage(mCurrentRecipe.getImageUrl(), mImageView, mImageOptions);
+
+        // set up the async task
         mAsyncTask = new DownloadRecipeDetailsAsyncTask(mCurrentRecipe.getId());
-        // TODODOTODO
         mAsyncTaskDelegate = new AsyncResponse<RecipeAdditionalInfoViewModel>() {
             @Override
             public void resolve(RecipeAdditionalInfoViewModel result) {
-                final RecipeAdditionalInfoViewModel recipeAdditionalInfoViewModel;
-
-                // Download recipe details
-                recipeAdditionalInfoViewModel = result;
+                final RecipeAdditionalInfoViewModel recipeAdditionalInfoViewModel = result;
 
                 if (recipeAdditionalInfoViewModel.getIngredients() == null) {
                     recipeAdditionalInfoViewModel.setIngredients(new ArrayList<String>());
                 }
 
                 // set up ingredients list header
-                View listViewHeader = getLayoutInflater(mSavedInstance).inflate(R.layout.list_header, null);
+                View listViewHeader = inflater.inflate(R.layout.list_header, null);
                 TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
                 listViewHeaderTextView.setText("Ingredients");
                 mIngredientsListView.addHeaderView(listViewHeader);
 
                 // set up ingredients list view
                 mIngredientsListView.setAdapter(new ArrayAdapter<>(
-                        getContext(), R.layout.list_item_string, recipeAdditionalInfoViewModel.getIngredients()));
+                        inflater.getContext(), R.layout.list_item_string, recipeAdditionalInfoViewModel.getIngredients()));
                 mIngredientsListView.setOnItemClickListener(null);
                 LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
 
@@ -112,15 +155,8 @@ public class RecipeDetailsFragment extends Fragment {
                                 new RecipeDetailsViewModel(mCurrentRecipe, recipeAdditionalInfoViewModel);
 
                         Intent intent = new Intent(getContext(), FavouritesActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("recipe_id", recipeDetailsViewModel.getId());
-                        bundle.putString("recipe_title", recipeDetailsViewModel.getTitle());
-                        bundle.putString("recipe_publisher_name", recipeDetailsViewModel.getPublisherName());
-                        bundle.putString("recipe_img_url", recipeDetailsViewModel.getImageUrl());
-                        bundle.putInt("recipe_social_rank", recipeDetailsViewModel.getSocialRank());
-                        bundle.putString("recipe_src_url", recipeDetailsViewModel.getSourceUrl());
-                        bundle.putStringArrayList("recipe_ingredients", (ArrayList<String>) recipeAdditionalInfoViewModel.getIngredients());
-                        intent.putExtras(bundle);
+                        intent.putExtras(createRecipeBundle(recipeDetailsViewModel));
+
                         startActivity(intent);
                     }
                 });
@@ -128,20 +164,6 @@ public class RecipeDetailsFragment extends Fragment {
         };
         mAsyncTask.delegate = mAsyncTaskDelegate;
         mAsyncTask.execute();
-
-        mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
-        mTitleTextView = (TextView) view.findViewById(R.id.recipe_details_title);
-        mIngredientsListView = (ListView) view.findViewById(R.id.recipe_details_ingredients_list);
-        mPublisherNameTextView = (TextView) view.findViewById(R.id.recipe_details_publisher_name);
-        mOpenSourceUrlButton = (Button) view.findViewById(R.id.recipe_details_source_url);
-        mAddToFavouritesButton = (Button) view.findViewById(R.id.recipe_details_favs_button);
-        mSocialRankTextView = (TextView) view.findViewById(R.id.recipe_details_social_rank);
-
-        // set the known recipe properties
-        mTitleTextView.setText(mCurrentRecipe.getTitle());
-        mPublisherNameTextView.setText(mCurrentRecipe.getPublisherName());
-        mSocialRankTextView.setText(mCurrentRecipe.getSocialRank() + " / 100");
-        ImageLoader.getInstance().displayImage(mCurrentRecipe.getImageUrl(), mImageView, mImageOptions);
 
         return view;
     }
@@ -160,6 +182,13 @@ public class RecipeDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private Bundle createRecipeBundle(RecipeDetailsViewModel recipeDetailsViewModel) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS, recipeDetailsViewModel);
+
+        return bundle;
     }
 
     public interface RecipeDetailsFragmentListener {

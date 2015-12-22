@@ -26,20 +26,11 @@ public class FavouritesActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
-
         setTitle("Favourites");
 
         Bundle passedBundle = getIntent().getExtras();
         if (passedBundle != null) {
-            mToBeAddedToFavourites = new RecipeDetailsViewModel();
-            mToBeAddedToFavourites = new RecipeDetailsViewModel();
-            mToBeAddedToFavourites.setId(passedBundle.getString("recipe_id"));
-            mToBeAddedToFavourites.setTitle(passedBundle.getString("recipe_title"));
-            mToBeAddedToFavourites.setPublisherName(passedBundle.getString("recipe_publisher_name"));
-            mToBeAddedToFavourites.setSourceUrl(passedBundle.getString("recipe_src_url"));
-            mToBeAddedToFavourites.setImageUrl(passedBundle.getString("recipe_img_url"));
-            mToBeAddedToFavourites.setSocialRank(passedBundle.getInt("recipe_social_rank"));
-            mToBeAddedToFavourites.setIngredients(passedBundle.getStringArrayList("recipe_ingredients"));
+            mToBeAddedToFavourites = passedBundle.getParcelable("recipe_details");
         }
         navigateToFavouritesList();
     }

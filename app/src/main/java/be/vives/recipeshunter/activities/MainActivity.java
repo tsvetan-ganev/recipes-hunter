@@ -10,6 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import be.vives.recipeshunter.R;
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment.RecipeDetailsFragmentListener;
@@ -21,15 +22,32 @@ import be.vives.recipeshunter.fragments.main.SearchRecipesFragment.OnSearchSubmi
 
 public class MainActivity extends AppCompatActivity
         implements RecipesListFragmentListener,
-                   OnSearchSubmitFragmentListener,
-                   RecipeDetailsFragmentListener {
+        OnSearchSubmitFragmentListener,
+        RecipeDetailsFragmentListener {
 
-    private String mSearchQuery = "";
+    private String mSearchQuery;
     private RecipeEntity mSelectedRecipe;
+    // TODO: restore recipes list state
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(Constants.BUNDLE_ITEM_SEARCH_QUERY, mSearchQuery);
+        outState.putParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE, mSelectedRecipe);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
+        mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -38,19 +56,27 @@ public class MainActivity extends AppCompatActivity
         // ImageLoader init
         ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
 
-        if (mSearchQuery == null || mSearchQuery.isEmpty()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_placeholder, new SearchRecipesFragment())
-                    .commit();
+        if (savedInstanceState != null) {
+            mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
+            mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
         } else {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_placeholder, new RecipesListFragment())
-                    .addToBackStack("search")
-                    .commit();
+            navigateToSearch();
+            return;
+        }
+
+        if (mSelectedRecipe != null) {
+            setRecipe(mSelectedRecipe);
+            navigateToDetailsFragment();
+            return;
+        }
+
+        if (mSearchQuery != null) {
+            setSearchQuery(mSearchQuery);
+            navigateFromSearchSubmitFragment();
+            return;
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,19 +95,20 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        // unset the selected recipe
+        if (mSelectedRecipe != null) {
+            mSelectedRecipe = null;
+        }
+
+        super.onBackPressed();
+    }
+
     // Listeners
     @Override
     public void setSearchQuery(String query) {
         mSearchQuery = query;
-    }
-
-    @Override
-    public void navigateFromSearchSubmitFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_placeholder, new RecipesListFragment())
-                .addToBackStack("list")
-                .commit();
     }
 
     @Override
@@ -94,17 +121,40 @@ public class MainActivity extends AppCompatActivity
         mSelectedRecipe = recipe;
     }
 
-    @Override
-    public void navigateToDetailsFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_placeholder, new RecipeDetailsFragment())
-                .addToBackStack("details")
-                .commit();
-    }
 
     @Override
     public RecipeEntity getSelectedRecipe() {
         return mSelectedRecipe;
+    }
+
+    @Override
+    public void navigateFromSearchSubmitFragment() {
+        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_MAIN_RECIPES_LIST, RESULT_OK);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.FRAGMENT_MAIN_RECIPES_LIST)
+                .replace(R.id.fragment_placeholder, new RecipesListFragment())
+                .commit();
+    }
+
+
+    @Override
+    public void navigateToDetailsFragment() {
+        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS, RESULT_OK);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS)
+                .replace(R.id.fragment_placeholder, new RecipeDetailsFragment())
+                .commit();
+    }
+
+    private void navigateToSearch() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.FRAGMENT_MAIN_SEARCH)
+                .replace(R.id.fragment_placeholder, new SearchRecipesFragment())
+                .commit();
     }
 }

@@ -14,7 +14,7 @@ import be.vives.recipeshunter.data.local.dao.IngredientDAO;
 
 public class IngredientDAOImpl extends AppDb implements IngredientDAO {
     private static final String WHERE_ID_EQUALS = DbContract.INGREDIENT_ID
-            + " = '";
+            + " = ";
 
     private static final String WHERE_RECIPE_ID_EQUALS = DbContract.INGREDIENT_RECIPE_ID
             + " = ";
@@ -54,7 +54,7 @@ public class IngredientDAOImpl extends AppDb implements IngredientDAO {
                 new String[] {
                         DbContract.INGREDIENT_NAME,
                 },
-                WHERE_RECIPE_ID_EQUALS + recipeId,
+                WHERE_RECIPE_ID_EQUALS + String.format("'%s'", recipeId),
                 null, null, null, null
         );
 
