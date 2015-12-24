@@ -17,14 +17,11 @@ import java.util.List;
 
 import org.unbescape.html.HtmlEscape;
 
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 
 public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, List<RecipeEntity>> {
-    private final String API_KEY = "9e6a705f76e8cd129b7692e570294410";
-
-    private final String API_ENDPOINT = "http://food2fork.com/api/";
-
-    private final String mBaseUrl = API_ENDPOINT + "search?key=" + API_KEY + "&q=";
+    private final String mBaseUrl = Constants.API_ENDPOINT + "search?key=" + Constants.API_KEY + "&q=";
 
     private String mQuery;
 

@@ -16,14 +16,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 
 public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeAdditionalInfoViewModel> {
-    private final String API_KEY = "9e6a705f76e8cd129b7692e570294410";
-
-    private final String API_ENDPOINT = "http://food2fork.com/api/";
-
-    private final String mBaseUrl = API_ENDPOINT + "get?key=" + API_KEY + "&rId=";
+    private final String mBaseUrl = Constants.API_ENDPOINT + "get?key=" + Constants.API_KEY + "&rId=";
 
     private final String mRecipeId;
 

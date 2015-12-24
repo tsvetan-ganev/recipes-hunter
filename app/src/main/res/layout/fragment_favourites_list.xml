@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_favourites_list"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <ProgressBar
+        android:id="@+id/favourites_list_progress_bar"
+        style="?android:progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="?android:progressBarStyleLarge"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_centerInParent="true"
-        android:visibility="gone"
-        android:id="@+id/favourites_list_progress_bar"/>
+        android:layout_centerVertical="true"
+        android:visibility="gone" />
 
-    <android.support.v7.widget.RecyclerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".fragments.favourites.FavouritesListFragment"
+        android:id="@+id/favourites_list_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical"
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
-        android:id="@+id/favourites_list_recycler_view"
-        />
+        android:scrollbars="vertical"
+        tools:context=".fragments.favourites.FavouritesListFragment" />
 
 </RelativeLayout>

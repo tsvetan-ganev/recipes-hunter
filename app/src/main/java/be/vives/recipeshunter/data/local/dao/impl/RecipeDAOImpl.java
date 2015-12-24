@@ -16,6 +16,8 @@ public class RecipeDAOImpl extends AppDb implements RecipeDAO {
     private static final String WHERE_ID_EQUALS = DbContract.RECIPE_ID
             + " =?";
 
+    private static final String ORDER_BY_SOCIAL_RANK = DbContract.RECIPE_SOCIAL_RANK;
+
     public RecipeDAOImpl(Context context) {
         super(context);
     }
@@ -24,6 +26,7 @@ public class RecipeDAOImpl extends AppDb implements RecipeDAO {
     public List<RecipeEntity> findAll() {
         List<RecipeEntity> recipes = new ArrayList<>();
         Cursor result = database.query(
+                true,
                 DbContract.RECIPE_TABLE,
                 new String[] {
                         DbContract.RECIPE_ID,
@@ -33,7 +36,9 @@ public class RecipeDAOImpl extends AppDb implements RecipeDAO {
                         DbContract.RECIPE_SOCIAL_RANK,
                         DbContract.RECIPE_SRC_URL
                 },
-                null, null, null, null, null);
+                null, null, null, null,
+                ORDER_BY_SOCIAL_RANK + " DESC",
+                null);
 
         while(result.moveToNext()) {
             RecipeEntity recipe = new RecipeEntity();

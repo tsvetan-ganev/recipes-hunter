@@ -3,24 +3,39 @@ package be.vives.recipeshunter.activities;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import be.vives.recipeshunter.R;
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
-import be.vives.recipeshunter.fragments.favourites.FavouritesAddRecipeFragment;
 import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment;
 import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment.FavouritesListFragmentListener;
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment.FavouritesRecipeDetailsListener;
 
-import static be.vives.recipeshunter.fragments.favourites.FavouritesAddRecipeFragment.*;
-
 public class FavouritesActivity extends AppCompatActivity implements
-        OnRecipeAddedToFavouritesListener,
         FavouritesListFragmentListener,
         FavouritesRecipeDetailsListener {
 
+    // data
     RecipeDetailsViewModel mToBeAddedToFavourites;
     RecipeDetailsViewModel mRecipeDetails;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS, mRecipeDetails);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,32 +43,36 @@ public class FavouritesActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_favourites);
         setTitle("Favourites");
 
+        // init image loader
+        if (!ImageLoader.getInstance().isInited()) {
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+        }
+
+        // check for recipe to be added to favourites
         Bundle passedBundle = getIntent().getExtras();
         if (passedBundle != null) {
-            mToBeAddedToFavourites = passedBundle.getParcelable("recipe_details");
+            mToBeAddedToFavourites = passedBundle.getParcelable(Constants.BUNDLE_ITEM_ADDED_TO_FAVOURITE_RECIPES);
         }
-        navigateToFavouritesList();
-    }
 
-    @Override
-    public RecipeDetailsViewModel getFavouriteRecipe() {
-        return mToBeAddedToFavourites;
-    }
+        // check for recipe to be displayed in details
+        if (savedInstanceState != null) {
+            mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
+        }
 
-    @Override
-    public void navigateToFavouritesList() {
-        if (mToBeAddedToFavourites != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_favourites_placeholder, new FavouritesAddRecipeFragment())
-                    .commit();
+        if (mRecipeDetails != null) {
+            navigateToDetailsFragment();
         } else {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())
-                    .commit();
+            navigateToFavouritesListFragment();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mRecipeDetails != null) {
+            mRecipeDetails = null;
         }
 
+        super.onBackPressed();
     }
 
     @Override
@@ -69,16 +88,25 @@ public class FavouritesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void navigateToDetailsFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_favourites_placeholder, new FavouritesRecipeDetailsFragment())
-                .addToBackStack("fav_details")
-                .commit();
+    public RecipeDetailsViewModel getRecipeDetails() {
+        return mRecipeDetails;
     }
 
     @Override
-    public RecipeDetailsViewModel getRecipeDetails() {
-        return mRecipeDetails;
+    public void navigateToDetailsFragment() {
+        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS, RESULT_OK);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS)
+                .replace(R.id.fragment_favourites_placeholder, new FavouritesRecipeDetailsFragment())
+                .commit();
+    }
+
+    private void navigateToFavouritesListFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())
+                .commit();
     }
 }

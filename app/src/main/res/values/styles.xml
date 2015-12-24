@@ -95,6 +95,34 @@
         <item name="android:color">#DE000000</item>
     </style>
 
+    <style name="TextDisplay1.Light">
+        <item name="android:textColor">#F4F4F4</item>
+    </style>
+
+    <style name="TextDisplay2.Light">
+        <item name="android:textColor">#F4F4F4</item>
+    </style>
+
+    <style name="TextDisplay3.Light">
+        <item name="android:textColor">#F4F4F4</item>
+    </style>
+
+    <style name="TextHeadline.Light">
+        <item name="android:textColor">#F4F4F4</item>
+    </style>
+
+    <style name="TextTitle.Light">
+        <item name="android:textColor">#F4F4F4</item>
+    </style>
+
+    <style name="TextBody.Light">
+        <item name="android:textColor">#E3E3E3</item>
+    </style>
+
+    <style name="TextSubheading.Light">
+        <item name="android:textColor">#C6C6C6</item>
+    </style>
+
     <style name="HorizontalLine">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">1dp</item>

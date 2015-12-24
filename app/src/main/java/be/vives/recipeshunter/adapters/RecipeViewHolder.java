@@ -2,6 +2,7 @@ package be.vives.recipeshunter.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,13 +34,15 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
 
     @Override
     public void onItemSelected() {
-        itemView.setBackgroundColor(Color.RED);
+        CardView cardView = (CardView) itemView;
+        cardView.setCardBackgroundColor(Color.RED);
         Toast.makeText(itemView.getContext(), "Swipe to remove." , Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onItemReleased() {
         // TODO: Use resources
-        itemView.setBackgroundColor(Color.parseColor("#227586"));
+        CardView cardView = (CardView) itemView;
+        cardView.setCardBackgroundColor(Color.parseColor("#227586"));
     }
 }

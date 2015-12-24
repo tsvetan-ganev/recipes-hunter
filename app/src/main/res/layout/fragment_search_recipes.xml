@@ -1,10 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:showIn="@layout/activity_main"
     android:id="@+id/fragment_search_recipes"
     >
 
@@ -20,20 +18,20 @@
         />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="@string/search_recipe_submit"
-        android:width="200dp"
-        android:gravity="center"
+        android:gravity="center|center_vertical"
+        android:drawableEnd="@drawable/ic_search_18dp"
         android:id="@+id/search_submit_button"
         />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="@string/search_recipe_favourites_button"
-        android:width="200dp"
-        android:gravity="center"
+        android:gravity="center|center_vertical"
+        android:drawableEnd="@drawable/ic_favorite_18dp"
         android:id="@+id/search_recipe_favourites_button"
         />
 

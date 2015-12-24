@@ -2,10 +2,12 @@ package be.vives.recipeshunter.fragments.favourites;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.SwipeableRecipesRecyclerListAdapter;
 import be.vives.recipeshunter.adapters.interactivity.OnItemDismissedListener;
 import be.vives.recipeshunter.adapters.interactivity.TouchCallback;
+import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.services.AsyncResponse;
 import be.vives.recipeshunter.data.services.DeleteFavouriteRecipeAsyncTask;
@@ -50,7 +53,16 @@ public class FavouritesListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("favourite_recipes", mFavouriteRecipes);
+        outState.putParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES, mFavouriteRecipes);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
+        }
     }
 
     @Override
@@ -121,9 +133,19 @@ public class FavouritesListFragment extends Fragment {
     private void setOnItemDismissedListener(SwipeableRecipesRecyclerListAdapter adapter) {
         adapter.delegate = new OnItemDismissedListener<RecipeEntity>() {
             @Override
-            public void remove(RecipeEntity entity) {
-                new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId()).execute();
-                Toast.makeText(getContext(), entity.getTitle() + " removed from favourites.", Toast.LENGTH_SHORT).show();
+            public void remove(final RecipeEntity entity) {
+                DeleteFavouriteRecipeAsyncTask removeFromFavouritesAsync =
+                        new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId());
+
+                removeFromFavouritesAsync.delegate = new AsyncResponse<Void>() {
+                    @Override
+                    public void resolve(Void result) {
+                        Snackbar.make(getView(), entity.getTitle() + " removed from favourites.", Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                };
+
+                removeFromFavouritesAsync.execute();
             }
         };
     }

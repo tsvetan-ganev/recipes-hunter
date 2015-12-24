@@ -54,14 +54,13 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         // ImageLoader init
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+        if (!ImageLoader.getInstance().isInited()) {
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+        }
 
         if (savedInstanceState != null) {
             mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
             mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
-        } else {
-            navigateToSearch();
-            return;
         }
 
         if (mSelectedRecipe != null) {
@@ -74,6 +73,8 @@ public class MainActivity extends AppCompatActivity
             setSearchQuery(mSearchQuery);
             navigateFromSearchSubmitFragment();
             return;
+        } else {
+            navigateToSearch();
         }
     }
 
@@ -97,9 +98,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        // unset the selected recipe
+        // unset the selected recipe or the search query
         if (mSelectedRecipe != null) {
             mSelectedRecipe = null;
+        } else {
+            mSearchQuery = null;
         }
 
         super.onBackPressed();
@@ -137,7 +140,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_placeholder, new RecipesListFragment())
                 .commit();
     }
-
 
     @Override
     public void navigateToDetailsFragment() {
