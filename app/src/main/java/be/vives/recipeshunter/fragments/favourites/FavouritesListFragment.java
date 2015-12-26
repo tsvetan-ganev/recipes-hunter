@@ -74,6 +74,8 @@ public class FavouritesListFragment extends Fragment {
         mProgressBar = (ProgressBar) view.findViewById(R.id.favourites_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.favourites_list_recycler_view);
 
+        mProgressBar.setVisibility(View.VISIBLE);
+
         // set up the async task
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
         mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
@@ -92,7 +94,7 @@ public class FavouritesListFragment extends Fragment {
             }
         };
 
-        mProgressBar.setVisibility(View.VISIBLE);
+
 
         if (savedInstanceState != null) {
             mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
@@ -103,6 +105,8 @@ public class FavouritesListFragment extends Fragment {
         if (mFavouriteRecipes == null || mFavouriteRecipes.isEmpty()) {
             mAsyncTask.execute();
             Log.d(getClass().getSimpleName(), "onCreateView: executing task");
+        } else {
+            mProgressBar.setVisibility(View.GONE);
         }
 
         mLayoutManager = new LinearLayoutManager(getActivity());
