@@ -25,6 +25,4 @@ public final class Constants {
     public static final String BUNDLE_ITEM_CURRENT_PAGE = "bundle_item_current_page";
     public static final String BUNDLE_ITEM_RECIPE_DETAILS = "bundle_item_recipe_details";
     public static final String BUNDLE_ITEM_FAVOURITE_RECIPES = "bundle_item_favourite_recipes";
-    public static final String BUNDLE_ITEM_ADDED_TO_FAVOURITE_RECIPES = "bundle_item_added_to_favourite_recipes";
-
 }

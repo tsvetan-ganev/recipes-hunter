@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class RecipesListFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
+    private CardView mCardViewListContainer;
     private LinearLayout mNoConnectionError;
 
     // data
@@ -93,6 +95,7 @@ public class RecipesListFragment extends Fragment {
         mProgressBar = (ProgressBar) view.findViewById(R.id.recipes_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recipes_list_recycler_view);
         mNoConnectionError = (LinearLayout) view.findViewById(R.id.recipes_list_no_connection_error);
+        mCardViewListContainer = (CardView) view.findViewById(R.id.recipes_list_recycler_view_card_container);
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -128,6 +131,7 @@ public class RecipesListFragment extends Fragment {
 
                 if (mRecipesList.isEmpty()) {
                     mNoConnectionError.setVisibility(View.VISIBLE);
+                    mCardViewListContainer.setVisibility(View.GONE);
                 } else {
                     Snackbar.make(view, "Server couldn't be reached.", Snackbar.LENGTH_SHORT).show();
                 }
