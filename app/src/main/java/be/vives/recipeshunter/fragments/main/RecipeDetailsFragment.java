@@ -209,7 +209,7 @@ public class RecipeDetailsFragment extends Fragment {
         mAdapter.addAll(mIngredientsList);
         mAdapter.notifyDataSetChanged();
         LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-        mIngredientsListView.setVisibility(View.VISIBL);
+        mIngredientsListView.setVisibility(View.VISIBLE);
     }
 
     private void setFabOnClickListener() {

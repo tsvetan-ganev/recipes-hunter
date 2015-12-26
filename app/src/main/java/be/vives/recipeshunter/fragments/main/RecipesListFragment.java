@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,8 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
+import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class RecipesListFragment extends Fragment {
@@ -35,7 +36,7 @@ public class RecipesListFragment extends Fragment {
 
     // data
     private String mSearchQuery;
-    private List<RecipeEntity> mRecipesList;
+    private ArrayList<RecipeEntity> mRecipesList;
 
     // interaction listener for MainActivity
     private RecipesListFragmentListener mListener;
@@ -53,22 +54,13 @@ public class RecipesListFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putString(Constants.BUNDLE_ITEM_SEARCH_QUERY, mSearchQuery);
-        outState.putString(Constants.BUNDLE_ITEM_LAST_FRAGMENT_VISITED, Constants.FRAGMENT_MAIN_RECIPES_LIST);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
-            mAsyncTask = new DownloadRecipesAsyncTask(mSearchQuery);
-            mCurrentPage = 0;
-            mIsEndReached = false;
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (RecipesListFragmentListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement RecipesListFragmentListener");
         }
     }
 
@@ -80,7 +72,16 @@ public class RecipesListFragment extends Fragment {
             mSearchQuery = mListener.getQueryString();
         }
 
-        mRecipesList = new ArrayList<>();
+        if (savedInstanceState != null) {
+            mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
+            mRecipesList = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_RECIPES_LIST);
+            mCurrentPage = savedInstanceState.getInt(Constants.BUNDLE_ITEM_CURRENT_PAGE, 1);
+        }
+
+        mIsEndReached = false;
+        if (mRecipesList == null) {
+            mRecipesList = new ArrayList<>();
+        }
     }
 
     @Override
@@ -97,13 +98,11 @@ public class RecipesListFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        if (mRecipesList.size() > 0) {
-            mAdapter = new RecipesRecycleListAdapter(mRecipesList);
-            mRecyclerView.setAdapter(mAdapter);
-        }
+        mAdapter = new RecipesRecycleListAdapter(mRecipesList);
+        mRecyclerView.setAdapter(mAdapter);
 
+        // prepare the async task
         mAsyncTask = new DownloadRecipesAsyncTask(mSearchQuery);
-
         mAsyncTaskDelegate = new Promise<List<RecipeEntity>, Exception>() {
             @Override
             public void resolve(List<RecipeEntity> result) {
@@ -113,16 +112,10 @@ public class RecipesListFragment extends Fragment {
                     return;
                 }
 
+                int currentItemsCount = mRecipesList.size() - 1;
                 mRecipesList.addAll(result);
+                mAdapter.notifyItemRangeInserted(currentItemsCount, result.size());
                 mCurrentPage += 1;
-
-                if (mAdapter == null) {
-                    mAdapter = new RecipesRecycleListAdapter(mRecipesList);
-                    mRecyclerView.setAdapter(mAdapter);
-                } else {
-                    mAdapter.notifyDataSetChanged();
-                }
-
                 mIsLoading = false;
                 hideProgressBar();
                 updateConnectionStatusInToolbar();
@@ -145,7 +138,6 @@ public class RecipesListFragment extends Fragment {
         mAsyncTask.delegate = mAsyncTaskDelegate;
 
         addOnItemClickListenerToRecycleView(mRecyclerView);
-
         addOnScrolledToBottomListenerToRecycleView(mRecyclerView);
 
         if (taskCanBeExecuted()) {
@@ -157,20 +149,20 @@ public class RecipesListFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (RecipesListFragmentListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement RecipesListFragmentListener");
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(Constants.BUNDLE_ITEM_SEARCH_QUERY, mSearchQuery);
+        outState.putInt(Constants.BUNDLE_ITEM_CURRENT_PAGE, mCurrentPage);
+        outState.putParcelableArrayList(Constants.BUNDLE_ITEM_RECIPES_LIST, mRecipesList);
+
+        outState.putString(Constants.BUNDLE_ITEM_LAST_FRAGMENT_VISITED, Constants.FRAGMENT_MAIN_RECIPES_LIST);
     }
 
     private void addOnItemClickListenerToRecycleView(RecyclerView recyclerView) {
@@ -188,7 +180,8 @@ public class RecipesListFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1) && !mIsLoading) {
+                if (!recyclerView.canScrollVertically(1)
+                        && !mIsLoading && !mIsEndReached) {
                     onScrolledToBottom();
                 }
             }
@@ -196,16 +189,13 @@ public class RecipesListFragment extends Fragment {
     }
 
     private void onScrolledToBottom() {
-        if (mIsEndReached) {
-            return;
-        }
-
         String newQuery = mSearchQuery + "&page=" + Integer.toString(mCurrentPage);
 
         if (!mIsLoading) {
             mIsLoading = true;
             mAsyncTask = new DownloadRecipesAsyncTask(newQuery);
             mAsyncTask.delegate = mAsyncTaskDelegate;
+            Log.d(getClass().getSimpleName(), "onScrolledToBottom: p." + mCurrentPage);
             mAsyncTask.execute();
         }
     }
@@ -213,6 +203,7 @@ public class RecipesListFragment extends Fragment {
     private boolean taskCanBeExecuted() {
         return (mAsyncTask.getStatus() == AsyncTask.Status.PENDING
                 && mSearchQuery != null
+                && !mIsEndReached
                 && mRecipesList.isEmpty());
     }
 
@@ -221,12 +212,16 @@ public class RecipesListFragment extends Fragment {
     }
 
     private void updateConnectionStatusInToolbar() {
-        getActivity().invalidateOptionsMenu();
+        if (isAdded()) {
+            getActivity().invalidateOptionsMenu();
+        }
     }
 
     public interface RecipesListFragmentListener {
         String getQueryString();
+
         void setRecipe(RecipeEntity recipe);
+
         void navigateToDetailsFragment();
     }
 }
