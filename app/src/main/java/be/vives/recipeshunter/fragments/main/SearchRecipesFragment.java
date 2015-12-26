@@ -44,15 +44,11 @@ public class SearchRecipesFragment extends Fragment {
 
 
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View button) {
-                if (deviceHasInternetAccess()) {
-                    mListener.setSearchQuery(mSearchEditText.getText().toString());
-                    mListener.navigateFromSearchSubmitFragment();
-                } else  {
-                    Snackbar snackbar = Snackbar.make(view, "You don't have internet access.", Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
+                mListener.setSearchQuery(mSearchEditText.getText().toString());
+                mListener.navigateFromSearchSubmitFragment();
             }
         });
 

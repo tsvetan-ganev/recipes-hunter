@@ -25,17 +25,12 @@ public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, List<Recip
 
     private String mQuery;
 
-    public AsyncResponse<List<RecipeEntity>> delegate;
+    private Exception mError;
+
+    public Promise<List<RecipeEntity>, Exception> delegate;
 
     public DownloadRecipesAsyncTask(String query) {
         mQuery = query;
-    }
-
-    @Override
-    protected void onPostExecute(List<RecipeEntity> recipeEntities) {
-        if (delegate != null) {
-            delegate.resolve(recipeEntities);
-        }
     }
 
     @Override
@@ -63,14 +58,28 @@ public class DownloadRecipesAsyncTask extends AsyncTask<URL, Integer, List<Recip
                 currentRecipe.setPublisherName(HtmlEscape.unescapeHtml(currentJsonRecipe.getString("publisher")));
                 currentRecipe.setImageUrl(currentJsonRecipe.getString("image_url"));
                 currentRecipe.setSocialRank(currentJsonRecipe.getInt("social_rank"));
+                currentRecipe.setSourceUrl(currentJsonRecipe.getString("source_url"));
 
                 recipes.add(currentRecipe);
                 if (isCancelled()) break;
             }
         } catch (IOException | JSONException ex) {
-            ex.printStackTrace();
+            mError = ex;
         }
 
         return recipes;
+    }
+
+    @Override
+    protected void onPostExecute(List<RecipeEntity> recipeEntities) {
+        if (delegate == null) {
+            throw new IllegalStateException("Delegate must be initialized for the task to execute.");
+        }
+
+        if (mError == null) {
+            delegate.resolve(recipeEntities);
+        } else {
+            delegate.reject(mError);
+        }
     }
 }

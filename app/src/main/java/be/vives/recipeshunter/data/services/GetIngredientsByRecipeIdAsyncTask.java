@@ -14,7 +14,7 @@ public class GetIngredientsByRecipeIdAsyncTask extends AsyncTask<Void, Integer, 
     private IngredientDAO mIngredientDAO;
     private final String mRecipeId;
 
-    public AsyncResponse<List<String>> delegate;
+    public Promise<List<String>, Exception> delegate;
 
     public GetIngredientsByRecipeIdAsyncTask(Context context, String recipeId) {
         this.mRecipeId = recipeId;

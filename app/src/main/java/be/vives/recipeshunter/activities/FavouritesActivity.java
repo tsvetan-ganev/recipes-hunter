@@ -20,7 +20,6 @@ public class FavouritesActivity extends AppCompatActivity implements
         FavouritesRecipeDetailsListener {
 
     // data
-    RecipeDetailsViewModel mToBeAddedToFavourites;
     RecipeDetailsViewModel mRecipeDetails;
 
     @Override
@@ -41,17 +40,10 @@ public class FavouritesActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favourites);
-        setTitle("Favourites");
 
         // init image loader
         if (!ImageLoader.getInstance().isInited()) {
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
-        }
-
-        // check for recipe to be added to favourites
-        Bundle passedBundle = getIntent().getExtras();
-        if (passedBundle != null) {
-            mToBeAddedToFavourites = passedBundle.getParcelable(Constants.BUNDLE_ITEM_ADDED_TO_FAVOURITE_RECIPES);
         }
 
         // check for recipe to be displayed in details
@@ -104,6 +96,8 @@ public class FavouritesActivity extends AppCompatActivity implements
     }
 
     private void navigateToFavouritesListFragment() {
+        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS, RESULT_OK);
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())

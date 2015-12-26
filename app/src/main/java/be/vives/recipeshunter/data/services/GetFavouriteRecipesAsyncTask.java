@@ -12,7 +12,7 @@ import be.vives.recipeshunter.data.local.dao.impl.RecipeDAOImpl;
 public class GetFavouriteRecipesAsyncTask extends AsyncTask<Void, Integer, List<RecipeEntity>> {
     private RecipeDAO mRecipeDAO;
 
-    public AsyncResponse<List<RecipeEntity>> delegate;
+    public Promise<List<RecipeEntity>, Exception> delegate;
 
     public GetFavouriteRecipesAsyncTask(Context context) {
         mRecipeDAO = new RecipeDAOImpl(context);

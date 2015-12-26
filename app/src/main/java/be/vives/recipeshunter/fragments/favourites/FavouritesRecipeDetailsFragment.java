@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,7 +24,7 @@ import java.util.List;
 
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.Constants;
-import be.vives.recipeshunter.data.services.AsyncResponse;
+import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.services.GetIngredientsByRecipeIdAsyncTask;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
 import be.vives.recipeshunter.utils.LayoutUtils;
@@ -45,7 +46,6 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     // data
     private RecipeDetailsViewModel mRecipeDetails;
     private List<String> mIngredientsList;
-    private Bundle mSavedInstance;
 
     private ArrayAdapter<String> mAdapter;
 
@@ -55,14 +55,13 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS, mRecipeDetails);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         if (savedInstanceState != null) {
             mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
         }
@@ -71,12 +70,9 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (savedInstanceState != null) {
             mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
-        }
-
-        if (mRecipeDetails != null && mRecipeDetails.getIngredients() == null) {
-            mRecipeDetails.setIngredients(new ArrayList<String>());
         }
     }
 
@@ -85,25 +81,11 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_recipe_details, container, false);
 
-        mSavedInstance = savedInstanceState;
-        if (mRecipeDetails == null) {
-            mRecipeDetails = mListener.getRecipeDetails();
+        mRecipeDetails = mListener.getRecipeDetails();
+
+        if (mRecipeDetails.getIngredients() == null && savedInstanceState != null) {
+            mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
         }
-
-        mAsyncTask = new GetIngredientsByRecipeIdAsyncTask(getActivity(), mRecipeDetails.getId());
-        mAsyncTask.delegate = new AsyncResponse<List<String>>() {
-            @Override
-            public void resolve(List<String> result) {
-                if (result != null) {
-                    mRecipeDetails.setIngredients(result);
-                    mAdapter.addAll(result);
-                    mAdapter.notifyDataSetChanged();
-                }
-
-                LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-            }
-        };
-        mAsyncTask.execute();
 
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
         mTitleTextView = (TextView) view.findViewById(R.id.recipe_details_title);
@@ -113,19 +95,12 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
         mSocialRankTextView = (TextView) view.findViewById(R.id.recipe_details_social_rank);
 
         // set up list view header
-        View listViewHeader = inflater.inflate(R.layout.list_header, null);
-        TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
-        listViewHeaderTextView.setText("Ingredients");
-        mIngredientsListView.addHeaderView(listViewHeader);
+        addHeaderToIngredientsListView(inflater);
 
         // set up list view content
-        mAdapter = new ArrayAdapter<>(inflater.getContext(),
-                R.layout.list_item_string,
-                new ArrayList<String>());
-        mIngredientsListView.setAdapter(mAdapter);
+        setUpIngredientsListViewContent(inflater);
 
-        mIngredientsListView.setOnItemClickListener(null);
-
+        // set the known properties
         mTitleTextView.setText(mRecipeDetails.getTitle());
         mPublisherNameTextView.setText(mRecipeDetails.getPublisherName());
         mSocialRankTextView.setText(mRecipeDetails.getSocialRank() + " / 100");
@@ -146,6 +121,31 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
             }
         });
 
+        // set up the async task
+        mAsyncTask = new GetIngredientsByRecipeIdAsyncTask(getActivity(), mRecipeDetails.getId());
+        mAsyncTask.delegate = new Promise<List<String>, Exception>() {
+            @Override
+            public void resolve(List<String> result) {
+                if (result != null) {
+                    mRecipeDetails.setIngredients(result);
+                    mAdapter.addAll(result);
+                    mAdapter.notifyDataSetChanged();
+                }
+
+                LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
+                Log.d(getClass().getSimpleName(), "resolve: " + result.toString());
+            }
+
+            @Override
+            public void reject(Exception error) {
+                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
+            }
+        };
+
+        if (mRecipeDetails.getIngredients() == null) {
+            mAsyncTask.execute();
+        }
+
         return view;
     }
 
@@ -162,7 +162,31 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.d(getClass().getSimpleName(), "onDetach: called");
         mListener = null;
+    }
+
+    private void addHeaderToIngredientsListView(LayoutInflater inflater) {
+        View listViewHeader = inflater.inflate(R.layout.list_header, null);
+        TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
+        listViewHeaderTextView.setText("Ingredients");
+        mIngredientsListView.addHeaderView(listViewHeader);
+    }
+
+    private void setUpIngredientsListViewContent(LayoutInflater inflater) {
+        List<String> ingredients;
+        if (mRecipeDetails.getIngredients() != null) {
+            ingredients = mRecipeDetails.getIngredients();
+        } else {
+            ingredients = new ArrayList<>();
+        }
+        mAdapter = new ArrayAdapter<>(inflater.getContext(),
+                R.layout.list_item_string,
+                ingredients);
+        mIngredientsListView.setAdapter(mAdapter);
+
+        mIngredientsListView.setOnItemClickListener(null);
+        LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
     }
 
     public interface FavouritesRecipeDetailsListener {

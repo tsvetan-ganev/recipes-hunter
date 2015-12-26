@@ -3,14 +3,14 @@ package be.vives.recipeshunter.fragments.main;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.adapters.RecipesRecycleListAdapter;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.services.AsyncResponse;
+import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
@@ -31,6 +31,7 @@ public class RecipesListFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
+    private LinearLayout mNoConnectionError;
 
     // data
     private String mSearchQuery;
@@ -46,7 +47,7 @@ public class RecipesListFragment extends Fragment {
 
     // async task for downloading recipes data
     private DownloadRecipesAsyncTask mAsyncTask;
-    private AsyncResponse<List<RecipeEntity>> mAsyncTaskDelegate;
+    private Promise<List<RecipeEntity>, Exception> mAsyncTaskDelegate;
 
     public RecipesListFragment() {
     }
@@ -85,11 +86,13 @@ public class RecipesListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
+        final View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
 
         // widgets set up
         mProgressBar = (ProgressBar) view.findViewById(R.id.recipes_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recipes_list_recycler_view);
+        mNoConnectionError = (LinearLayout) view.findViewById(R.id.recipes_list_no_connection_error);
+
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -101,7 +104,7 @@ public class RecipesListFragment extends Fragment {
 
         mAsyncTask = new DownloadRecipesAsyncTask(mSearchQuery);
 
-        mAsyncTaskDelegate = new AsyncResponse<List<RecipeEntity>>() {
+        mAsyncTaskDelegate = new Promise<List<RecipeEntity>, Exception>() {
             @Override
             public void resolve(List<RecipeEntity> result) {
                 if (result.isEmpty()) {
@@ -111,7 +114,6 @@ public class RecipesListFragment extends Fragment {
                 }
 
                 mRecipesList.addAll(result);
-
                 mCurrentPage += 1;
 
                 if (mAdapter == null) {
@@ -122,7 +124,22 @@ public class RecipesListFragment extends Fragment {
                 }
 
                 mIsLoading = false;
-                mProgressBar.setVisibility(View.GONE);
+                hideProgressBar();
+                updateConnectionStatusInToolbar();
+            }
+
+            @Override
+            public void reject(Exception error) {
+                mIsLoading = false;
+                hideProgressBar();
+
+                if (mRecipesList.isEmpty()) {
+                    mNoConnectionError.setVisibility(View.VISIBLE);
+                } else {
+                    Snackbar.make(view, "Server couldn't be reached.", Snackbar.LENGTH_SHORT).show();
+                }
+
+                updateConnectionStatusInToolbar();
             }
         };
         mAsyncTask.delegate = mAsyncTaskDelegate;
@@ -199,11 +216,17 @@ public class RecipesListFragment extends Fragment {
                 && mRecipesList.isEmpty());
     }
 
+    private void hideProgressBar() {
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    private void updateConnectionStatusInToolbar() {
+        getActivity().invalidateOptionsMenu();
+    }
+
     public interface RecipesListFragmentListener {
         String getQueryString();
-
         void setRecipe(RecipeEntity recipe);
-
         void navigateToDetailsFragment();
     }
 }

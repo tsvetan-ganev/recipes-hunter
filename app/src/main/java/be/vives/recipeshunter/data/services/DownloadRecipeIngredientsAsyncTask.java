@@ -17,36 +17,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import be.vives.recipeshunter.data.Constants;
-import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 
-public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeAdditionalInfoViewModel> {
+public class DownloadRecipeIngredientsAsyncTask extends AsyncTask<URL, Void, List<String>> {
     private final String mBaseUrl = Constants.API_ENDPOINT + "get?key=" + Constants.API_KEY + "&rId=";
 
     private final String mRecipeId;
 
-    public AsyncResponse<RecipeAdditionalInfoViewModel> delegate;
+    private Exception mError;
 
-    public DownloadRecipeDetailsAsyncTask(String recipeId) {
+    public Promise<List<String>, Exception> delegate;
+
+    public DownloadRecipeIngredientsAsyncTask(String recipeId) {
         mRecipeId = recipeId;
     }
 
     @Override
-    protected RecipeAdditionalInfoViewModel doInBackground(URL... params) {
+    protected List<String> doInBackground(URL... params) {
         OkHttpClient http = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(mBaseUrl + mRecipeId)
                 .addHeader("Accept", "application/json")
                 .build();
 
+        List<String> ingredients = new ArrayList<>();
         Response res = null;
-        RecipeAdditionalInfoViewModel detailsViewModel = new RecipeAdditionalInfoViewModel();
         try {
             res = http.newCall(request).execute();
             JSONObject jsonRecipe = new JSONObject(res.body()
                     .string())
                     .getJSONObject("recipe");
 
-            List<String> ingredients = new ArrayList<>();
             JSONArray ingredientsJsonArr = jsonRecipe.getJSONArray("ingredients");
             for (int i = 0; i < ingredientsJsonArr.length(); i++) {
                 String ingredient = ingredientsJsonArr.getString(i);
@@ -55,18 +55,23 @@ public class DownloadRecipeDetailsAsyncTask extends AsyncTask<URL, Void, RecipeA
                     ingredients.add(HtmlEscape.unescapeHtml(ingredient));
                 }
             }
-
-            detailsViewModel.setIngredients(ingredients);
-            detailsViewModel.setSourceUrl(jsonRecipe.getString("source_url"));
         } catch (IOException | JSONException ex) {
-            ex.printStackTrace();
+            mError = ex;
         }
 
-        return detailsViewModel;
+        return ingredients;
     }
 
     @Override
-    protected void onPostExecute(RecipeAdditionalInfoViewModel result) {
-        delegate.resolve(result);
+    protected void onPostExecute(List<String> result) {
+        if (delegate == null) {
+            throw new IllegalStateException("Delegate should be initialized for the task to execute.");
+        }
+
+        if (mError == null) {
+            delegate.resolve(result);
+        } else {
+            delegate.reject(mError);
+        }
     }
 }

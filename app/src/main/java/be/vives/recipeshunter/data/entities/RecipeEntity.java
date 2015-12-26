@@ -74,6 +74,7 @@ public class RecipeEntity implements Parcelable {
         sb.append(this.id + " | ");
         sb.append(this.title + " | ");
         sb.append(this.publisherName + " | ");
+        sb.append(this.sourceUrl + " | ");
         sb.append(this.socialRank);
 
         return sb.toString();

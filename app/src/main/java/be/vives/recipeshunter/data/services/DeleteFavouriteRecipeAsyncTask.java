@@ -12,7 +12,7 @@ public class DeleteFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Voi
     private final String mRecipeId;
     private final Context mContext;
 
-    public AsyncResponse<Void> delegate;
+    public Promise<Void, Exception> delegate;
 
     public DeleteFavouriteRecipeAsyncTask(Context context, String recipeId) {
         mRecipeDao = new RecipeDAOImpl(context);

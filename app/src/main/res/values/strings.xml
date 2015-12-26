@@ -11,4 +11,5 @@
     <string name="hint_recipe_name">Recipe name</string>
     <string name="hint_publisher_name">Publisher name</string>
     <string name="hint_social_rank">X/100</string>
+    <string name="no_connection_error">Server couldn\'t be reached.</string>
 </resources>

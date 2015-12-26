@@ -2,7 +2,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/menu_main"
     tools:context=".MainActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_item_connection_status"
+        android:checkable="false"
+        android:icon="@drawable/ic_online_white_24dp"
+        android:orderInCategory="300"
+        android:title="Connection status"
+        app:showAsAction="ifRoom" />
 </menu>

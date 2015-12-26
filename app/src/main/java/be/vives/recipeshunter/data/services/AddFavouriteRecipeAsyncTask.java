@@ -19,7 +19,9 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
     private final Context mContext;
     private final RecipeDetailsViewModel mRecipe;
 
-    public AsyncResponse<Boolean> delegate;
+    private Exception mError;
+
+    public Promise<Boolean, Exception> delegate;
 
     public AddFavouriteRecipeAsyncTask(Context context, RecipeDetailsViewModel recipe) {
         mContext = context;
@@ -40,33 +42,52 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
         recipe.setImageUrl(mRecipe.getImageUrl());
         recipe.setSocialRank(mRecipe.getSocialRank());
 
-        // insert the recipe
+        try {
+            insertRecipeEntity(recipe);
+            insertRecipeIngredients(mRecipe);
+
+            // mark the recipe as saved to favourites
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(
+                    Constants.PREFERENCES_FAVOURITE_RECIPES, Context.MODE_PRIVATE);
+            sharedPreferences.edit().putBoolean(mRecipe.getId(), true).apply();
+        } catch (Exception ex) {
+            this.mError = ex;
+        } finally {
+            mRecipeDao.close();
+            mIngredientDao.close();
+        }
+
+        return mError == null;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+        if (delegate == null) {
+            throw new IllegalStateException("Delegate should be initialized for the task to execute.");
+        }
+
+        if (mError == null) {
+            delegate.resolve(result);
+        } else {
+            delegate.reject(mError);
+        }
+    }
+
+    private void insertRecipeEntity(RecipeEntity recipe) {
         mRecipeDao.open();
         mRecipeDao.insert(recipe);
         mRecipeDao.close();
+    }
 
-        // insert its ingredients
+    private void insertRecipeIngredients(RecipeDetailsViewModel recipe) {
         mIngredientDao.open();
         for (String ingredientName :
-                mRecipe.getIngredients()) {
+                recipe.getIngredients()) {
             IngredientEntity ingredient = new IngredientEntity();
             ingredient.setName(ingredientName);
             ingredient.setRecipeId(recipe.getId());
             mIngredientDao.insert(ingredient);
         }
         mIngredientDao.close();
-
-        // mark the recipe as saved to favourites
-        SharedPreferences sharedPreferences = mContext.getSharedPreferences(Constants.APP_NAME, Context.MODE_APPEND);
-        sharedPreferences.edit().putBoolean(mRecipe.getId(), true).commit();
-
-        return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result) {
-        if (delegate != null) {
-            delegate.resolve(result);
-        }
     }
 }

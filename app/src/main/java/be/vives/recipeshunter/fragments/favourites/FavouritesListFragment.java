@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ import be.vives.recipeshunter.adapters.interactivity.OnItemDismissedListener;
 import be.vives.recipeshunter.adapters.interactivity.TouchCallback;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.services.AsyncResponse;
+import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.services.DeleteFavouriteRecipeAsyncTask;
 import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
@@ -82,7 +81,7 @@ public class FavouritesListFragment extends Fragment {
 
         // set up the async task
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
-        mAsyncTask.delegate = new AsyncResponse<List<RecipeEntity>>() {
+        mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
             @Override
             public void resolve(List<RecipeEntity> result) {
                 mFavouriteRecipes.addAll(result);
@@ -90,6 +89,11 @@ public class FavouritesListFragment extends Fragment {
                 mAdapter.notifyItemRangeInserted(0, result.size());
 
                 mProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void reject(Exception error) {
+                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
             }
         };
 
@@ -137,11 +141,16 @@ public class FavouritesListFragment extends Fragment {
                 DeleteFavouriteRecipeAsyncTask removeFromFavouritesAsync =
                         new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId());
 
-                removeFromFavouritesAsync.delegate = new AsyncResponse<Void>() {
+                removeFromFavouritesAsync.delegate = new Promise<Void, Exception>() {
                     @Override
                     public void resolve(Void result) {
                         Snackbar.make(getView(), entity.getTitle() + " removed from favourites.", Snackbar.LENGTH_LONG)
                                 .show();
+                    }
+
+                    @Override
+                    public void reject(Exception error) {
+                        Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
                     }
                 };
 

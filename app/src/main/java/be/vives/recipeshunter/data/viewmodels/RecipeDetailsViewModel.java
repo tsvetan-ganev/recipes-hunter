@@ -3,6 +3,7 @@ package be.vives.recipeshunter.data.viewmodels;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import be.vives.recipeshunter.data.entities.RecipeEntity;
@@ -29,14 +30,19 @@ public class RecipeDetailsViewModel implements Parcelable {
         this.socialRank = 0;
     }
 
-    public RecipeDetailsViewModel(RecipeEntity recipeEntity, RecipeAdditionalInfoViewModel additionalInfo) {
+    public RecipeDetailsViewModel(RecipeEntity recipeEntity, List<String> ingredients) {
         this.id = recipeEntity.getId();
         this.title = recipeEntity.getTitle();
         this.publisherName = recipeEntity.getPublisherName();
         this.imageUrl = recipeEntity.getImageUrl();
         this.socialRank = recipeEntity.getSocialRank();
-        this.ingredients = additionalInfo.getIngredients();
-        this.sourceUrl = additionalInfo.getSourceUrl();
+        this.sourceUrl = recipeEntity.getSourceUrl();
+
+        if (ingredients == null) {
+            this.ingredients = new ArrayList<>();
+        } else {
+            this.ingredients = ingredients;
+        }
     }
 
     // Getters and setters
