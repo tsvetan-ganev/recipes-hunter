@@ -23,7 +23,7 @@
                 android:layout_height="250dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="0dp"
-                android:layout_weight="0.2"
+                android:layout_weight="0.3"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop" />
 
@@ -62,8 +62,9 @@
                 android:id="@+id/recipe_details_ingredients_list"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
+                android:visibility="gone"
                 android:layout_marginBottom="30dp"
-                android:layout_weight="0.6" />
+                android:layout_weight="0.5" />
 
             <Button
                 android:id="@+id/recipe_details_source_url"

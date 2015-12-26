@@ -1,5 +1,7 @@
 package be.vives.recipeshunter.activities;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -22,10 +24,15 @@ public class FavouritesActivity extends AppCompatActivity implements
     // data
     RecipeDetailsViewModel mRecipeDetails;
 
+    // fragment state
+    Fragment mFragment;
+    String mLastFragmentTag;
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS, mRecipeDetails);
+        outState.putString(Constants.LAST_FRAGMENT_TAG, mLastFragmentTag);
     }
 
     @Override
@@ -33,6 +40,7 @@ public class FavouritesActivity extends AppCompatActivity implements
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
+            mLastFragmentTag = savedInstanceState.getString(Constants.LAST_FRAGMENT_TAG);
         }
     }
 
@@ -51,10 +59,14 @@ public class FavouritesActivity extends AppCompatActivity implements
             mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
         }
 
-        if (mRecipeDetails != null) {
-            navigateToDetailsFragment();
+        if (savedInstanceState == null) {
+            if (mRecipeDetails != null) {
+                navigateToDetailsFragment();
+            } else {
+                navigateToFavouritesListFragment();
+            }
         } else {
-            navigateToFavouritesListFragment();
+            mFragment = getSupportFragmentManager().findFragmentByTag(mLastFragmentTag);
         }
     }
 
@@ -86,21 +98,31 @@ public class FavouritesActivity extends AppCompatActivity implements
 
     @Override
     public void navigateToDetailsFragment() {
-        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS, RESULT_OK);
+        mFragment = new FavouritesRecipeDetailsFragment();
+        mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS;
+
+        getSupportFragmentManager().popBackStack(mLastFragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS)
-                .replace(R.id.fragment_favourites_placeholder, new FavouritesRecipeDetailsFragment())
+                .addToBackStack(mLastFragmentTag)
+                .addToBackStack(mLastFragmentTag)
+                .replace(R.id.fragment_favourites_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }
 
     private void navigateToFavouritesListFragment() {
-        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS, RESULT_OK);
+        mFragment = new FavouritesListFragment();
+        mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPES_LIST;
+
+        getSupportFragmentManager()
+                .popBackStack(mLastFragmentTag,
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_favourites_placeholder, new FavouritesListFragment())
+                .addToBackStack(mLastFragmentTag)
+                .replace(R.id.fragment_favourites_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }
 }

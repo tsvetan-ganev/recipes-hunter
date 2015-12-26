@@ -8,6 +8,8 @@ public final class Constants {
 
     public static final String PREFERENCES_FAVOURITE_RECIPES = "be.vives.recipeshunter.favourites";
 
+    public static final String LAST_FRAGMENT_TAG = "last_fragment_tag";
+
     public static final String FRAGMENT_MAIN_RECIPES_LIST = "fragment_main_recipes_list";
     public static final String FRAGMENT_MAIN_RECIPE_DETAILS = "fragment_main_recipe_details";
     public static final String FRAGMENT_MAIN_SEARCH = "fragment_main_search";

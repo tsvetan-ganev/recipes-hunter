@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
-import be.vives.recipeshunter.data.viewmodels.RecipeAdditionalInfoViewModel;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment.RecipeDetailsFragmentListener;
 import be.vives.recipeshunter.fragments.main.RecipesListFragment;
@@ -34,11 +34,15 @@ public class MainActivity extends AppCompatActivity
 
     private MenuItem mConnectionStatus;
 
+    // data
+    // TODO: restore recipes list state
     private String mSearchQuery;
     private RecipeEntity mSelectedRecipe;
     private ArrayList<String> mIngredientsList;
 
-    // TODO: restore recipes list state
+    // fragment state
+    private Fragment mFragment;
+    private String mLastFragmentTag;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -72,24 +76,25 @@ public class MainActivity extends AppCompatActivity
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         }
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
+            if (mSelectedRecipe != null) {
+                setRecipe(mSelectedRecipe);
+                navigateToDetailsFragment();
+                return;
+            }
+
+            if (mSearchQuery != null) {
+                setSearchQuery(mSearchQuery);
+                navigateFromSearchSubmitFragment();
+                return;
+            } else {
+                navigateToSearch();
+            }
+        } else {
             mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
             mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
             mIngredientsList = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
-        }
-
-        if (mSelectedRecipe != null) {
-            setRecipe(mSelectedRecipe);
-            navigateToDetailsFragment();
-            return;
-        }
-
-        if (mSearchQuery != null) {
-            setSearchQuery(mSearchQuery);
-            navigateFromSearchSubmitFragment();
-            return;
-        } else {
-            navigateToSearch();
+            mFragment = getSupportFragmentManager().findFragmentByTag(mLastFragmentTag);
         }
     }
 
@@ -112,8 +117,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        invalidateOptionsMenu();
-
         // unset the selected recipe or the search query
         if (mSelectedRecipe != null) {
             mSelectedRecipe = null;
@@ -168,42 +171,36 @@ public class MainActivity extends AppCompatActivity
     // Navigation methods
     @Override
     public void navigateFromSearchSubmitFragment() {
-        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_MAIN_RECIPES_LIST, RESULT_OK);
+        mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPES_LIST;
+        mFragment = new RecipesListFragment();
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(Constants.FRAGMENT_MAIN_RECIPES_LIST)
-                .replace(R.id.fragment_placeholder, new RecipesListFragment())
+                .addToBackStack(mLastFragmentTag)
+                .replace(R.id.fragment_placeholder, mFragment)
                 .commit();
     }
 
     @Override
     public void navigateToDetailsFragment() {
-        Fragment fragment = null;
-        fragment = getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAIN_RECIPE_DETAILS);
-        getSupportFragmentManager().popBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS, RESULT_OK);
+        mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPE_DETAILS;
+        mFragment = new RecipeDetailsFragment();
 
-        if (fragment == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS)
-                    .replace(R.id.fragment_placeholder, new RecipeDetailsFragment())
-                    .commit();
-        } else {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS)
-                    .replace(R.id.fragment_placeholder, fragment)
-                    .commit();
-        }
-
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack(Constants.FRAGMENT_MAIN_RECIPE_DETAILS)
+                .replace(R.id.fragment_placeholder, mFragment)
+                .commit();
     }
 
     private void navigateToSearch() {
+        mLastFragmentTag = Constants.FRAGMENT_MAIN_SEARCH;
+        mFragment = new SearchRecipesFragment();
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(Constants.FRAGMENT_MAIN_SEARCH)
-                .replace(R.id.fragment_placeholder, new SearchRecipesFragment())
+                .addToBackStack(mLastFragmentTag)
+                .replace(R.id.fragment_placeholder, mFragment)
                 .commit();
     }
 }

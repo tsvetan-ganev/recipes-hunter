@@ -58,16 +58,11 @@ public class FavouritesListFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
-        }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFavouriteRecipes = new ArrayList<>();
     }
 
     @Override
@@ -83,7 +78,7 @@ public class FavouritesListFragment extends Fragment {
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
         mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
             @Override
-            public void resolve(List<RecipeEntity> result) {
+            public void resolve(final List<RecipeEntity> result) {
                 mFavouriteRecipes.addAll(result);
                 // probably not a good solution
                 mAdapter.notifyItemRangeInserted(0, result.size());
@@ -98,7 +93,17 @@ public class FavouritesListFragment extends Fragment {
         };
 
         mProgressBar.setVisibility(View.VISIBLE);
-        mAsyncTask.execute();
+
+        if (savedInstanceState != null) {
+            mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
+        } else {
+            mFavouriteRecipes = new ArrayList<>();
+        }
+
+        if (mFavouriteRecipes == null || mFavouriteRecipes.isEmpty()) {
+            mAsyncTask.execute();
+            Log.d(getClass().getSimpleName(), "onCreateView: executing task");
+        }
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -164,7 +169,6 @@ public class FavouritesListFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 mListener.setRecipe(mFavouriteRecipes.get(position));
-                mFavouriteRecipes.clear();
                 mListener.navigateToDetailsFragment();
             }
         });

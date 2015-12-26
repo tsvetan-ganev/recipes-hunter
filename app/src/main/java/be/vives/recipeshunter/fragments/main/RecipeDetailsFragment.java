@@ -68,21 +68,13 @@ public class RecipeDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            mCurrentRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
-            mIngredientsList = savedInstanceState.getStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (RecipeDetailsFragmentListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString());
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE, mCurrentRecipe);
-        outState.putStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST, mIngredientsList);
     }
 
     @Override
@@ -92,6 +84,8 @@ public class RecipeDetailsFragment extends Fragment {
         if (savedInstanceState != null) {
             mCurrentRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
             mIngredientsList = savedInstanceState.getStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
+        } else {
+            mCurrentRecipe = mListener.getSelectedRecipe();
         }
     }
 
@@ -99,14 +93,6 @@ public class RecipeDetailsFragment extends Fragment {
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
-
-        if (savedInstanceState == null) {
-            mCurrentRecipe = mListener.getSelectedRecipe();
-        }
-
-        if (savedInstanceState != null && mIngredientsList == null) {
-            mIngredientsList = savedInstanceState.getStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
-        }
 
         // set up UI widgets
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
@@ -129,11 +115,10 @@ public class RecipeDetailsFragment extends Fragment {
         mPublisherNameTextView.setText(mCurrentRecipe.getPublisherName());
         mSocialRankTextView.setText(mCurrentRecipe.getSocialRank() + " / 100");
         ImageLoader.getInstance().displayImage(mCurrentRecipe.getImageUrl(), mImageView, mImageOptions);
-        setShowInstructionsButtonOnClickListener(mCurrentRecipe);
 
-        if (mIngredientsList != null) {
-            mIngredientsListView.setVisibility(View.VISIBLE);
-        }
+        // set onclick listeners
+        setShowInstructionsButtonOnClickListener(mCurrentRecipe);
+        setFabOnClickListener();
 
         // set up ingredients list header
         View listViewHeader = inflater.inflate(R.layout.list_header, null);
@@ -151,12 +136,16 @@ public class RecipeDetailsFragment extends Fragment {
         mIngredientsListView.setOnItemClickListener(null);
         LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
 
+        if (mIngredientsList != null) {
+            mIngredientsListView.setVisibility(View.VISIBLE);
+        }
+
         // set up the async task
         mDownloadIngredientsAsyncTask = new DownloadRecipeIngredientsAsyncTask(mCurrentRecipe.getId());
         mAsyncTaskDelegate = new Promise<List<String>, Exception>() {
             @Override
             public void resolve(List<String> result) {
-                onIngredientsDownloaded(result);
+                updateIngredientsListView(result);
                 updateConnectionStatusInToolbar();
             }
 
@@ -194,26 +183,16 @@ public class RecipeDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (RecipeDetailsFragmentListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString());
-        }
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        if (mDownloadIngredientsAsyncTask != null
-                && mDownloadIngredientsAsyncTask.getStatus() == AsyncTask.Status.RUNNING) {
-            Log.d(getClass().getSimpleName(), "onDetach: async task stopped");
-            mDownloadIngredientsAsyncTask.cancel(true);
-        }
-
-        Log.d(getClass().getSimpleName(), "onDetach: just detached");
-        mListener = null;
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE, mCurrentRecipe);
+        outState.putStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST, mIngredientsList);
     }
 
     private boolean isRecipeInFavourites(RecipeEntity recipe) {
@@ -222,20 +201,18 @@ public class RecipeDetailsFragment extends Fragment {
         return preferences.getBoolean(recipe.getId(), false);
     }
 
-    private void onIngredientsDownloaded(final List<String> ingredients) {
+    private void updateIngredientsListView(final List<String> ingredients) {
         if (ingredients == null) {
             return;
         }
         mIngredientsList = (ArrayList<String>) ingredients;
-
-        Log.d(this.getClass().getSimpleName(), "onIngredientsDownloaded: " + mIngredientsList.size());
         mAdapter.addAll(mIngredientsList);
         mAdapter.notifyDataSetChanged();
         LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-        setFabOnClickListener(mCurrentRecipe, ingredients);
+        mIngredientsListView.setVisibility(View.VISIBL);
     }
 
-    private void setFabOnClickListener(final RecipeEntity recipe, final List<String> ingredients) {
+    private void setFabOnClickListener() {
         if (isRecipeInFavourites(mCurrentRecipe)) {
             return;
         }
@@ -243,7 +220,15 @@ public class RecipeDetailsFragment extends Fragment {
         mAddToFavouritesFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final RecipeDetailsViewModel recipeDetails = new RecipeDetailsViewModel(recipe, ingredients);
+                if (mIngredientsList == null || mIngredientsList.isEmpty()) {
+                    Snackbar.make(getView(),
+                            "Cannot add to favourites, because ingredients data is missing."
+                            ,Snackbar.LENGTH_LONG)
+                            .show();
+                    return;
+                }
+
+                final RecipeDetailsViewModel recipeDetails = new RecipeDetailsViewModel(mCurrentRecipe, mIngredientsList);
                 mAddToFavouritesAsyncTask = new AddFavouriteRecipeAsyncTask(
                         getContext(), recipeDetails);
 
