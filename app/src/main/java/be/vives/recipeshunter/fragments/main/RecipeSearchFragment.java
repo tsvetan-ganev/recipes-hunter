@@ -20,7 +20,7 @@ import be.vives.recipeshunter.activities.FavouritesActivity;
 /**
  * Fragment containing a search box.
  */
-public class SearchRecipesFragment extends Fragment {
+public class RecipeSearchFragment extends Fragment {
 
     // widgets
     private EditText mSearchEditText;
@@ -30,13 +30,14 @@ public class SearchRecipesFragment extends Fragment {
     // interaction listener for MainActivity
     private OnSearchSubmitFragmentListener mListener;
 
-    public SearchRecipesFragment() {
+    public RecipeSearchFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_search_recipes, container, false);
+        getActivity().setTitle(getResources().getString(R.string.app_name));
 
         mSearchEditText = (EditText) view.findViewById(R.id.search_edit_text);
         mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit_button);

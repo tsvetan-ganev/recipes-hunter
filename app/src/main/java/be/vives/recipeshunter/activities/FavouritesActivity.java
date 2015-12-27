@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -17,6 +18,7 @@ import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment.Favour
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment.FavouritesRecipeDetailsListener;
 
+// todo: fix navigation on back pressed
 public class FavouritesActivity extends AppCompatActivity implements
         FavouritesListFragmentListener,
         FavouritesRecipeDetailsListener {
@@ -47,7 +49,10 @@ public class FavouritesActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favourites);
+        setContentView(R.layout.layout_container);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
 
         // init image loader
         if (!ImageLoader.getInstance().isInited()) {
@@ -101,13 +106,10 @@ public class FavouritesActivity extends AppCompatActivity implements
         mFragment = new FavouritesRecipeDetailsFragment();
         mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS;
 
-        getSupportFragmentManager().popBackStack(mLastFragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(mLastFragmentTag)
-                .addToBackStack(mLastFragmentTag)
-                .replace(R.id.fragment_favourites_placeholder, mFragment, mLastFragmentTag)
+                .replace(R.id.fragment_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }
 
@@ -116,13 +118,9 @@ public class FavouritesActivity extends AppCompatActivity implements
         mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPES_LIST;
 
         getSupportFragmentManager()
-                .popBackStack(mLastFragmentTag,
-                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(mLastFragmentTag)
-                .replace(R.id.fragment_favourites_placeholder, mFragment, mLastFragmentTag)
+                .replace(R.id.fragment_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }
 }

@@ -61,14 +61,12 @@ public class FavouritesListFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
+
+        getActivity().setTitle(getResources().getString(R.string.favourite_recipes));
+        Log.d(getClass().getSimpleName(), "onCreateView: created");
 
         // set up UI widgets
         mProgressBar = (ProgressBar) view.findViewById(R.id.favourites_list_progress_bar);

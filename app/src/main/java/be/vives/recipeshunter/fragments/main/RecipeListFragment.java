@@ -12,8 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import be.vives.recipeshunter.data.services.DownloadRecipesAsyncTask;
 import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
-public class RecipesListFragment extends Fragment {
+public class RecipeListFragment extends Fragment {
 
     // widgets
     private ProgressBar mProgressBar;
@@ -34,7 +34,7 @@ public class RecipesListFragment extends Fragment {
     private RecipesRecycleListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     private CardView mCardViewListContainer;
-    private LinearLayout mNoConnectionError;
+    private TextView mErrorTextView;
 
     // data
     private String mSearchQuery;
@@ -52,7 +52,7 @@ public class RecipesListFragment extends Fragment {
     private DownloadRecipesAsyncTask mAsyncTask;
     private Promise<List<RecipeEntity>, Exception> mAsyncTaskDelegate;
 
-    public RecipesListFragment() {
+    public RecipeListFragment() {
     }
 
     @Override
@@ -91,10 +91,18 @@ public class RecipesListFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
 
+        if (!mSearchQuery.isEmpty()) {
+            getActivity().setTitle(String.format(
+                    getResources().getString(R.string.results_for), mSearchQuery));
+        } else {
+            getActivity().setTitle(String.format(getResources().getString(R.string.results_for_empty)));
+        }
+
+
         // widgets set up
         mProgressBar = (ProgressBar) view.findViewById(R.id.recipes_list_progress_bar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recipes_list_recycler_view);
-        mNoConnectionError = (LinearLayout) view.findViewById(R.id.recipes_list_no_connection_error);
+        mErrorTextView = (TextView) view.findViewById(R.id.recipes_list_error);
         mCardViewListContainer = (CardView) view.findViewById(R.id.recipes_list_recycler_view_card_container);
 
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -111,14 +119,16 @@ public class RecipesListFragment extends Fragment {
             public void resolve(List<RecipeEntity> result) {
                 if (result.isEmpty()) {
                     mIsEndReached = true;
-                    mIsLoading = false;
-                    return;
+                    if (mRecipesList.isEmpty()) {
+                        mCardViewListContainer.setVisibility(View.GONE);
+                        mErrorTextView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    int currentItemsCount = mRecipesList.size() - 1;
+                    mRecipesList.addAll(result);
+                    mAdapter.notifyItemRangeInserted(currentItemsCount, result.size());
+                    mCurrentPage += 1;
                 }
-
-                int currentItemsCount = mRecipesList.size() - 1;
-                mRecipesList.addAll(result);
-                mAdapter.notifyItemRangeInserted(currentItemsCount, result.size());
-                mCurrentPage += 1;
                 mIsLoading = false;
                 hideProgressBar();
                 updateConnectionStatusInToolbar();
@@ -130,7 +140,9 @@ public class RecipesListFragment extends Fragment {
                 hideProgressBar();
 
                 if (mRecipesList.isEmpty()) {
-                    mNoConnectionError.setVisibility(View.VISIBLE);
+                    mErrorTextView.setText(getResources().getString(R.string.no_connection_error));
+                    mErrorTextView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_offline_128dp, 0, 0);
+                    mErrorTextView.setVisibility(View.VISIBLE);
                     mCardViewListContainer.setVisibility(View.GONE);
                 } else {
                     Snackbar.make(view, "Server couldn't be reached.", Snackbar.LENGTH_SHORT).show();

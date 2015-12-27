@@ -14,17 +14,15 @@ import android.view.MenuItem;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import java.util.ArrayList;
-
 import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.main.RecipeDetailsFragment.RecipeDetailsFragmentListener;
-import be.vives.recipeshunter.fragments.main.RecipesListFragment;
-import be.vives.recipeshunter.fragments.main.RecipesListFragment.RecipesListFragmentListener;
-import be.vives.recipeshunter.fragments.main.SearchRecipesFragment;
-import be.vives.recipeshunter.fragments.main.SearchRecipesFragment.OnSearchSubmitFragmentListener;
+import be.vives.recipeshunter.fragments.main.RecipeListFragment;
+import be.vives.recipeshunter.fragments.main.RecipeListFragment.RecipesListFragmentListener;
+import be.vives.recipeshunter.fragments.main.RecipeSearchFragment;
+import be.vives.recipeshunter.fragments.main.RecipeSearchFragment.OnSearchSubmitFragmentListener;
 
 public class MainActivity extends AppCompatActivity
         implements RecipesListFragmentListener,
@@ -34,10 +32,8 @@ public class MainActivity extends AppCompatActivity
     private MenuItem mConnectionStatus;
 
     // data
-    // TODO: restore recipes list state
     private String mSearchQuery;
     private RecipeEntity mSelectedRecipe;
-    private ArrayList<String> mIngredientsList;
 
     // fragment state
     private Fragment mFragment;
@@ -49,7 +45,6 @@ public class MainActivity extends AppCompatActivity
 
         outState.putString(Constants.BUNDLE_ITEM_SEARCH_QUERY, mSearchQuery);
         outState.putParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE, mSelectedRecipe);
-        outState.putStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST, mIngredientsList);
     }
 
     @Override
@@ -58,14 +53,13 @@ public class MainActivity extends AppCompatActivity
 
         mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
         mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
-        mIngredientsList = savedInstanceState.getStringArrayList(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.layout_container);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
@@ -92,7 +86,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             mSearchQuery = savedInstanceState.getString(Constants.BUNDLE_ITEM_SEARCH_QUERY);
             mSelectedRecipe = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_SELECTED_RECIPE);
-            mIngredientsList = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_INGREDIENTS_LIST);
             mFragment = getSupportFragmentManager().findFragmentByTag(mLastFragmentTag);
         }
     }
@@ -119,7 +112,6 @@ public class MainActivity extends AppCompatActivity
         // unset the selected recipe or the search query
         if (mSelectedRecipe != null) {
             mSelectedRecipe = null;
-            mIngredientsList = null;
         } else {
             mSearchQuery = null;
         }
@@ -171,7 +163,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void navigateFromSearchSubmitFragment() {
         mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPES_LIST;
-        mFragment = new RecipesListFragment();
+        mFragment = new RecipeListFragment();
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -185,6 +177,7 @@ public class MainActivity extends AppCompatActivity
         mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPE_DETAILS;
         mFragment = new RecipeDetailsFragment();
 
+        setTitle("Details");
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(mLastFragmentTag)
@@ -194,8 +187,9 @@ public class MainActivity extends AppCompatActivity
 
     private void navigateToSearch() {
         mLastFragmentTag = Constants.FRAGMENT_MAIN_SEARCH;
-        mFragment = new SearchRecipesFragment();
+        mFragment = new RecipeSearchFragment();
 
+        setTitle(getResources().getString(R.string.app_name));
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(mLastFragmentTag)

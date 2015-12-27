@@ -5,4 +5,9 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <!--Fix for FAB margin bug-->
+    <style name="floating_action_button">
+        <item name="android:layout_margin">16dp</item>
+    </style>
 </resources>

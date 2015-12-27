@@ -81,6 +81,8 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_recipe_details, container, false);
 
+        getActivity().setTitle(getResources().getString(R.string.details));
+
         mRecipeDetails = mListener.getRecipeDetails();
 
         if (mRecipeDetails.getIngredients() == null && savedInstanceState != null) {

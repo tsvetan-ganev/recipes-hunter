@@ -12,4 +12,10 @@
     <string name="hint_publisher_name">Publisher name</string>
     <string name="hint_social_rank">X/100</string>
     <string name="no_connection_error">Server couldn\'t be reached.</string>
+    <string name="no_internet_access_text">No internet access.</string>
+    <string name="results_for">Results for \"%s\"</string>
+    <string name="results_for_empty">Top recipes</string>
+    <string name="favourite_recipes">Favorite recipes</string>
+    <string name="details">Details</string>
+    <string name="no_results_for_query">No results found for your query.</string>
 </resources>

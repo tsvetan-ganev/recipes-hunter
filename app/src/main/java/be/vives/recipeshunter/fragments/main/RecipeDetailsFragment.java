@@ -94,6 +94,8 @@ public class RecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
 
+        getActivity().setTitle(getResources().getString(R.string.details));
+
         // set up UI widgets
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
         mTitleTextView = (TextView) view.findViewById(R.id.recipe_details_title);
@@ -236,6 +238,7 @@ public class RecipeDetailsFragment extends Fragment {
                     @Override
                     public void resolve(Boolean result) {
                         mAddToFavouritesFab.setOnClickListener(null);
+                        mAddToFavouritesFab.setClickable(false);
                         mAddToFavouritesFab.setImageDrawable(getActivity()
                                 .getResources()
                                 .getDrawable(R.drawable.ic_favorite_white_24dp));
