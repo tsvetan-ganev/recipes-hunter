@@ -1,6 +1,7 @@
 package be.vives.recipeshunter.data.services;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import be.vives.recipeshunter.data.Constants;
@@ -24,9 +25,10 @@ public class DeleteFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Voi
     protected Void doInBackground(Void... params) {
         mRecipeDao.open();
         mRecipeDao.delete(mRecipeId);
-        mContext.getSharedPreferences(Constants.APP_NAME, Context.MODE_APPEND)
+        mContext.getSharedPreferences(Constants.PREFERENCES_FAVOURITE_RECIPES, Context.MODE_PRIVATE)
                 .edit()
-                .remove(mRecipeId);
+                .remove(mRecipeId)
+                .apply();
         mRecipeDao.close();
 
         return null;

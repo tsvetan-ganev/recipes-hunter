@@ -61,6 +61,16 @@ public class FavouritesListFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
+        } else {
+            mFavouriteRecipes = new ArrayList<>();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
@@ -73,6 +83,9 @@ public class FavouritesListFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.favourites_list_recycler_view);
 
         mProgressBar.setVisibility(View.VISIBLE);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
 
         // set up the async task
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
@@ -80,9 +93,7 @@ public class FavouritesListFragment extends Fragment {
             @Override
             public void resolve(final List<RecipeEntity> result) {
                 mFavouriteRecipes.addAll(result);
-                // probably not a good solution
                 mAdapter.notifyItemRangeInserted(0, result.size());
-
                 mProgressBar.setVisibility(View.GONE);
             }
 
@@ -92,24 +103,11 @@ public class FavouritesListFragment extends Fragment {
             }
         };
 
-
-
-        if (savedInstanceState != null) {
-            mFavouriteRecipes = savedInstanceState.getParcelableArrayList(Constants.BUNDLE_ITEM_FAVOURITE_RECIPES);
-        } else {
-            mFavouriteRecipes = new ArrayList<>();
-        }
-
         if (mFavouriteRecipes == null || mFavouriteRecipes.isEmpty()) {
             mAsyncTask.execute();
-            Log.d(getClass().getSimpleName(), "onCreateView: executing task");
         } else {
             mProgressBar.setVisibility(View.GONE);
         }
-
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
 
         mAdapter = new SwipeableRecipesRecyclerListAdapter(mFavouriteRecipes);
         mRecyclerView.setAdapter(mAdapter);
@@ -121,6 +119,23 @@ public class FavouritesListFragment extends Fragment {
         TouchCallback callback = new TouchCallback(mAdapter);
         mItemSwipeListener = new ItemTouchHelper(callback);
         mItemSwipeListener.attachToRecyclerView(mRecyclerView);
+
+        // async task setup
+        // set up the async task
+        mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
+        mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
+            @Override
+            public void resolve(final List<RecipeEntity> result) {
+                mFavouriteRecipes.addAll(result);
+                mAdapter.notifyItemRangeInserted(0, result.size());
+                mProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void reject(Exception error) {
+                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
+            }
+        };
 
         return view;
     }
