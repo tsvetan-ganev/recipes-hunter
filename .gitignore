@@ -11,3 +11,4 @@ gradle.properties
 /.idea
 /gradle
 gradlew*
+.log
