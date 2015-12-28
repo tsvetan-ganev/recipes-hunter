@@ -26,4 +26,5 @@
     <string name="ingredients_cannot_be_loaded">Ingredients couldn\'t be loaded.</string>
     <string name="cannot_download_recipe_ingredients">Could not download recipe ingredients.</string>
     <string name="server_cannot_be_reached">Server couldn\'t be reached.</string>
+    <string name="cannot_add_to_favourites">Cannot add to favourites because ingredients data is missing.</string>
 </resources>

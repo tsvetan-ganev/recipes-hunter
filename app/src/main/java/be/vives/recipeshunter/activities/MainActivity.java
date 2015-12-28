@@ -72,13 +72,13 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             if (mSelectedRecipe != null) {
                 setRecipe(mSelectedRecipe);
-                navigateToDetailsFragment();
+                navigateFromRecipesList();
                 return;
             }
 
             if (mSearchQuery != null) {
                 setSearchQuery(mSearchQuery);
-                navigateFromSearchSubmitFragment();
+                navigateFromSearch();
                 return;
             } else {
                 navigateToSearch();
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
 
     // Navigation methods
     @Override
-    public void navigateFromSearchSubmitFragment() {
+    public void navigateFromSearch() {
         mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPES_LIST;
         mFragment = new RecipeListFragment();
 
@@ -173,11 +173,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void navigateToDetailsFragment() {
+    public void navigateFromRecipesList() {
         mLastFragmentTag = Constants.FRAGMENT_MAIN_RECIPE_DETAILS;
         mFragment = new RecipeDetailsFragment();
 
-        setTitle("Details");
         getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack(mLastFragmentTag)
@@ -189,10 +188,8 @@ public class MainActivity extends AppCompatActivity
         mLastFragmentTag = Constants.FRAGMENT_MAIN_SEARCH;
         mFragment = new RecipeSearchFragment();
 
-        setTitle(getResources().getString(R.string.app_name));
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(mLastFragmentTag)
                 .replace(R.id.fragment_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }

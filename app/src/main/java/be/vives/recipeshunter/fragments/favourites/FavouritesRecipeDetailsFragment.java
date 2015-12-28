@@ -82,7 +82,7 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favourites_recipe_details, container, false);
 
-        getActivity().setTitle(getResources().getString(R.string.details));
+        getActivity().setTitle(getString(R.string.details));
 
         mRecipeDetails = mListener.getRecipeDetails();
 
@@ -140,7 +140,7 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
 
             @Override
             public void reject(Exception error) {
-                Snackbar.make(getView(), R.string.ingredients_cannot_be_loaded, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getView(), getString(R.string.ingredients_cannot_be_loaded), Snackbar.LENGTH_LONG).show();
             }
         };
 

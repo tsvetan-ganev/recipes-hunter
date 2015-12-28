@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -18,7 +17,6 @@ import be.vives.recipeshunter.fragments.favourites.FavouritesListFragment.Favour
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment;
 import be.vives.recipeshunter.fragments.favourites.FavouritesRecipeDetailsFragment.FavouritesRecipeDetailsListener;
 
-// todo: fix navigation on back pressed
 public class FavouritesActivity extends AppCompatActivity implements
         FavouritesListFragmentListener,
         FavouritesRecipeDetailsListener {
@@ -63,7 +61,7 @@ public class FavouritesActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             if (mRecipeDetails != null) {
-                navigateFromFavouritesListFragment();
+                navigateFromFavouritesList();
             } else {
                 navigateToFavouritesListFragment();
             }
@@ -100,7 +98,7 @@ public class FavouritesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void navigateFromFavouritesListFragment() {
+    public void navigateFromFavouritesList() {
         mFragment = new FavouritesRecipeDetailsFragment();
         mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS;
 

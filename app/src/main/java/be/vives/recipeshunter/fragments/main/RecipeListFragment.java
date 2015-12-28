@@ -91,10 +91,9 @@ public class RecipeListFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
 
         if (!mSearchQuery.isEmpty()) {
-            getActivity().setTitle(String.format(
-                    getResources().getString(R.string.results_for), mSearchQuery));
+            getActivity().setTitle(String.format(getString(R.string.results_for), mSearchQuery));
         } else {
-            getActivity().setTitle(String.format(getResources().getString(R.string.results_for_empty)));
+            getActivity().setTitle(String.format(getString(R.string.results_for_empty)));
         }
 
 
@@ -139,12 +138,12 @@ public class RecipeListFragment extends Fragment {
                 hideProgressBar();
 
                 if (mRecipesList.isEmpty()) {
-                    mErrorTextView.setText(getResources().getString(R.string.no_connection_error));
+                    mErrorTextView.setText(getString(R.string.no_connection_error));
                     mErrorTextView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_offline_128dp, 0, 0);
                     mErrorTextView.setVisibility(View.VISIBLE);
                     mCardViewListContainer.setVisibility(View.GONE);
                 } else {
-                    Snackbar.make(view, R.string.server_cannot_be_reached, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(view, getString(R.string.server_cannot_be_reached), Snackbar.LENGTH_SHORT).show();
                 }
 
                 updateConnectionStatusInToolbar();
@@ -183,7 +182,7 @@ public class RecipeListFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 mListener.setRecipe(mRecipesList.get(position));
-                mListener.navigateToDetailsFragment();
+                mListener.navigateFromRecipesList();
             }
         });
     }
@@ -232,6 +231,6 @@ public class RecipeListFragment extends Fragment {
     public interface RecipesListFragmentListener {
         String getQueryString();
         void setRecipe(RecipeEntity recipe);
-        void navigateToDetailsFragment();
+        void navigateFromRecipesList();
     }
 }

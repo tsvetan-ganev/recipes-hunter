@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,7 +76,7 @@ public class FavouritesListFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
-        getActivity().setTitle(getResources().getString(R.string.favourite_recipes));
+        getActivity().setTitle(getString(R.string.favourite_recipes));
 
         // set up UI widgets
         mProgressBar = (ProgressBar) view.findViewById(R.id.favourites_list_progress_bar);
@@ -163,7 +162,7 @@ public class FavouritesListFragment extends Fragment {
                     @Override
                     public void resolve(RecipeEntity result) {
                         Snackbar.make(getView(),
-                                result.getTitle() + getResources().getString(R.string.removed_from_favourites),
+                                result.getTitle() + getString(R.string.removed_from_favourites),
                                 Snackbar.LENGTH_LONG)
                                 .show();
 
@@ -175,7 +174,7 @@ public class FavouritesListFragment extends Fragment {
                     @Override
                     public void reject(Exception error) {
                         Snackbar.make(getView(),
-                                getResources().getString(R.string.couldnt_remove_recipe_from_db),
+                                getString(R.string.couldnt_remove_recipe_from_db),
                                 Snackbar.LENGTH_LONG)
                                 .show();
                     }
@@ -195,7 +194,7 @@ public class FavouritesListFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 mListener.setRecipe(mFavouriteRecipes.get(position));
-                mListener.navigateFromFavouritesListFragment();
+                mListener.navigateFromFavouritesList();
             }
         });
     }
@@ -203,6 +202,6 @@ public class FavouritesListFragment extends Fragment {
     public interface FavouritesListFragmentListener {
         void setRecipe(RecipeEntity recipe);
 
-        void navigateFromFavouritesListFragment();
+        void navigateFromFavouritesList();
     }
 }

@@ -82,7 +82,7 @@ public class RecipeDetailsFragment extends Fragment {
             public void reject(Exception error) {
                 Snackbar errorMessage = Snackbar.make(getView(), "", Snackbar.LENGTH_LONG);
                 if (error.getMessage().contains("ingredients cannot be null")) {
-                    errorMessage.setText("Cannnot add to favourites because ingredients data is missing.");
+                    errorMessage.setText(getString(R.string.cannot_add_to_favourites));
                 } else {
                     errorMessage.setText("Couldn't add recipe to favourites.");
                 }
@@ -98,12 +98,12 @@ public class RecipeDetailsFragment extends Fragment {
             mAddToFavouritesFab.setImageDrawable(getActivity()
                     .getResources()
                     .getDrawable(R.drawable.ic_favorite_border_white_24_dp));
-            Snackbar.make(getView(), result.getTitle() + R.string.removed_from_favourites, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView(), result.getTitle() + getString(R.string.removed_from_favourites), Snackbar.LENGTH_LONG).show();
         }
 
         @Override
         public void reject(Exception error) {
-            Snackbar.make(getView(), R.string.couldnt_remove_recipe_from_db, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView(), getString(R.string.couldnt_remove_recipe_from_db), Snackbar.LENGTH_LONG).show();
         }
     };
 
@@ -138,7 +138,7 @@ public class RecipeDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
 
-        getActivity().setTitle(getResources().getString(R.string.details));
+        getActivity().setTitle(getString(R.string.details));
 
         // set up UI widgets
         mImageView = (ImageView) view.findViewById(R.id.recipe_details_image);
