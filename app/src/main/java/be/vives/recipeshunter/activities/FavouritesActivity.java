@@ -1,10 +1,10 @@
 package be.vives.recipeshunter.activities;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -54,23 +54,21 @@ public class FavouritesActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
 
+        Log.d(getClass().getSimpleName(), "onCreate: " + getFragmentManager().getBackStackEntryCount());
+
         // init image loader
         if (!ImageLoader.getInstance().isInited()) {
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         }
 
-        // check for recipe to be displayed in details
-        if (savedInstanceState != null) {
-            mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
-        }
-
         if (savedInstanceState == null) {
             if (mRecipeDetails != null) {
-                navigateToDetailsFragment();
+                navigateFromFavouritesListFragment();
             } else {
                 navigateToFavouritesListFragment();
             }
         } else {
+            mRecipeDetails = savedInstanceState.getParcelable(Constants.BUNDLE_ITEM_RECIPE_DETAILS);
             mFragment = getSupportFragmentManager().findFragmentByTag(mLastFragmentTag);
         }
     }
@@ -102,7 +100,7 @@ public class FavouritesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void navigateToDetailsFragment() {
+    public void navigateFromFavouritesListFragment() {
         mFragment = new FavouritesRecipeDetailsFragment();
         mLastFragmentTag = Constants.FRAGMENT_FAVOURITES_RECIPE_DETAILS;
 

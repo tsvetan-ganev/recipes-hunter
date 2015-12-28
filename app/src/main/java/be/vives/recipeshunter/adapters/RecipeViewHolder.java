@@ -1,7 +1,7 @@
 package be.vives.recipeshunter.adapters;
 
-import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,10 +20,14 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
     public TextView mSocialRankTextView;
     public ProgressBar mImageLoadingSpinner;
 
-    private static final int mBgColor = R.color.cardViewBG;
+    private static int mBgColor = 0;
 
     public RecipeViewHolder(View view) {
         super(view);
+
+        if (mBgColor == 0) {
+            mBgColor = ContextCompat.getColor(view.getContext(), R.color.card_view_bg_dark);
+        }
 
         mTitleTextView = (TextView) view.findViewById(R.id.list_item_recipe_title);
         mImageView = (ImageView) view.findViewById(R.id.list_item_recipe_image);
@@ -43,6 +47,6 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
     public void onItemReleased() {
         // TODO: Use resources
         CardView cardView = (CardView) itemView;
-        cardView.setCardBackgroundColor(Color.parseColor("#227586"));
+        cardView.setCardBackgroundColor(mBgColor);
     }
 }

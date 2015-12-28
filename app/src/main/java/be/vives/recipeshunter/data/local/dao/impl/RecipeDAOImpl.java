@@ -98,7 +98,7 @@ public class RecipeDAOImpl extends AppDb implements RecipeDAO {
     }
 
     @Override
-    public void delete(String id) {
-        database.delete(DbContract.RECIPE_TABLE, WHERE_ID_EQUALS, new String[] { id });
+    public void delete(RecipeEntity entity) {
+        database.delete(DbContract.RECIPE_TABLE, WHERE_ID_EQUALS, new String[] { entity.getId() });
     }
 }

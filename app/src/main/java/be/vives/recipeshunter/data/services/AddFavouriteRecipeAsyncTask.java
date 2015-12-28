@@ -13,7 +13,7 @@ import be.vives.recipeshunter.data.local.dao.impl.IngredientDAOImpl;
 import be.vives.recipeshunter.data.local.dao.impl.RecipeDAOImpl;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
 
-public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolean> {
+public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, RecipeEntity> {
     private final RecipeDAO mRecipeDao;
     private final IngredientDAO mIngredientDao;
     private final Context mContext;
@@ -21,7 +21,7 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
 
     private Exception mError;
 
-    public Promise<Boolean, Exception> delegate;
+    public Promise<RecipeEntity, Exception> delegate;
 
     public AddFavouriteRecipeAsyncTask(Context context, RecipeDetailsViewModel recipe) {
         mContext = context;
@@ -31,7 +31,7 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected RecipeEntity doInBackground(Void... params) {
         // convert from view model to entity
         RecipeEntity recipe = new RecipeEntity();
 
@@ -57,11 +57,11 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
             mIngredientDao.close();
         }
 
-        return mError == null;
+        return recipe;
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(RecipeEntity result) {
         if (delegate == null) {
             throw new IllegalStateException("Delegate should be initialized for the task to execute.");
         }
@@ -81,6 +81,11 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Boolea
 
     private void insertRecipeIngredients(RecipeDetailsViewModel recipe) {
         mIngredientDao.open();
+
+        if (recipe.getIngredients() == null) {
+            throw new IllegalArgumentException("Recipe ingredients cannot be null.");
+        }
+
         for (String ingredientName :
                 recipe.getIngredients()) {
             IngredientEntity ingredient = new IngredientEntity();

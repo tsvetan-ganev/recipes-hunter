@@ -7,7 +7,7 @@
     android:layout_margin="6dp"
     android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
-    card_view:cardBackgroundColor="@color/cardViewBG"
+    card_view:cardBackgroundColor="@color/card_view_bg_dark"
     card_view:cardCornerRadius="@dimen/cardview_default_radius"
     card_view:cardElevation="@dimen/cardview_default_elevation"
     card_view:cardUseCompatPadding="false"
@@ -52,8 +52,8 @@
         <ProgressBar
             android:id="@+id/list_item_recipe_loading_spinner"
             style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:paddingTop="16dp" />

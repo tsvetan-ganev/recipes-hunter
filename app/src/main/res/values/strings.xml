@@ -5,7 +5,6 @@
     <string name="search_recipe_submit">Search</string>
     <string name="search_recipe_favourites_button">Favourites</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="recipe_details_show_instructions">See detailed instructions</string>
     <string name="recipe_details_add_to_favs">Add to favourites</string>
     <string name="hint_recipe_name">Recipe name</string>
@@ -18,4 +17,9 @@
     <string name="favourite_recipes">Favorite recipes</string>
     <string name="details">Details</string>
     <string name="no_results_for_query">No results found for your query.</string>
+    <string name="removed_from_favourites">" removed from favourites."</string>
+    <string name="couldnt_remove_recipe_from_db">Couldn\'t remove recipe from database.</string>
+    <string name="favourtes_couldnt_be_loaded">Favourites couldn\'t be loaded.</string>
+    <string name="ingredients_list_view_header">Ingredients</string>
+    <string name="added_to_favourites">" added to favourites."</string>
 </resources>

@@ -23,7 +23,7 @@ import be.vives.recipeshunter.adapters.interactivity.TouchCallback;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.services.Promise;
-import be.vives.recipeshunter.data.services.DeleteFavouriteRecipeAsyncTask;
+import be.vives.recipeshunter.data.services.RemoveFavouriteRecipeAsyncTask;
 import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
@@ -73,7 +73,7 @@ public class FavouritesListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
+        final View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.favourite_recipes));
         Log.d(getClass().getSimpleName(), "onCreateView: created");
@@ -87,7 +87,10 @@ public class FavouritesListFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        // set up the async task
+        mAdapter = new SwipeableRecipesRecyclerListAdapter(mFavouriteRecipes);
+        mRecyclerView.setAdapter(mAdapter);
+
+        // set up async task
         mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
         mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
             @Override
@@ -97,20 +100,16 @@ public class FavouritesListFragment extends Fragment {
                 mProgressBar.setVisibility(View.GONE);
             }
 
-            @Override
             public void reject(Exception error) {
-                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
+                Snackbar.make(view, R.string.favourtes_couldnt_be_loaded, Snackbar.LENGTH_LONG).show();
             }
         };
 
-        if (mFavouriteRecipes == null || mFavouriteRecipes.isEmpty()) {
+        if (mFavouriteRecipes.isEmpty()) {
             mAsyncTask.execute();
         } else {
             mProgressBar.setVisibility(View.GONE);
         }
-
-        mAdapter = new SwipeableRecipesRecyclerListAdapter(mFavouriteRecipes);
-        mRecyclerView.setAdapter(mAdapter);
 
         // UI listeners
         setOnItemClickedListener(mRecyclerView);
@@ -119,23 +118,6 @@ public class FavouritesListFragment extends Fragment {
         TouchCallback callback = new TouchCallback(mAdapter);
         mItemSwipeListener = new ItemTouchHelper(callback);
         mItemSwipeListener.attachToRecyclerView(mRecyclerView);
-
-        // async task setup
-        // set up the async task
-        mAsyncTask = new GetFavouriteRecipesAsyncTask(getActivity());
-        mAsyncTask.delegate = new Promise<List<RecipeEntity>, Exception>() {
-            @Override
-            public void resolve(final List<RecipeEntity> result) {
-                mFavouriteRecipes.addAll(result);
-                mAdapter.notifyItemRangeInserted(0, result.size());
-                mProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void reject(Exception error) {
-                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
-            }
-        };
 
         return view;
     }
@@ -160,19 +142,24 @@ public class FavouritesListFragment extends Fragment {
         adapter.delegate = new OnItemDismissedListener<RecipeEntity>() {
             @Override
             public void remove(final RecipeEntity entity) {
-                DeleteFavouriteRecipeAsyncTask removeFromFavouritesAsync =
-                        new DeleteFavouriteRecipeAsyncTask(getContext(), entity.getId());
+                RemoveFavouriteRecipeAsyncTask removeFromFavouritesAsync =
+                        new RemoveFavouriteRecipeAsyncTask(getContext(), entity);
 
-                removeFromFavouritesAsync.delegate = new Promise<Void, Exception>() {
+                removeFromFavouritesAsync.delegate = new Promise<RecipeEntity, Exception>() {
                     @Override
-                    public void resolve(Void result) {
-                        Snackbar.make(getView(), entity.getTitle() + " removed from favourites.", Snackbar.LENGTH_LONG)
+                    public void resolve(RecipeEntity result) {
+                        Snackbar.make(getView(),
+                                result.getTitle() + getResources().getString(R.string.removed_from_favourites),
+                                Snackbar.LENGTH_LONG)
                                 .show();
                     }
 
                     @Override
                     public void reject(Exception error) {
-                        Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
+                        Snackbar.make(getView(),
+                                getResources().getString(R.string.couldnt_remove_recipe_from_db),
+                                Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 };
 
@@ -186,13 +173,13 @@ public class FavouritesListFragment extends Fragment {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 mListener.setRecipe(mFavouriteRecipes.get(position));
-                mListener.navigateToDetailsFragment();
+                mListener.navigateFromFavouritesListFragment();
             }
         });
     }
 
     public interface FavouritesListFragmentListener {
         void setRecipe(RecipeEntity recipe);
-        void navigateToDetailsFragment();
+        void navigateFromFavouritesListFragment();
     }
 }

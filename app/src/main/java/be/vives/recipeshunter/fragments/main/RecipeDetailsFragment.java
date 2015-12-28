@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -30,6 +30,7 @@ import be.vives.recipeshunter.R;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
 import be.vives.recipeshunter.data.services.AddFavouriteRecipeAsyncTask;
+import be.vives.recipeshunter.data.services.RemoveFavouriteRecipeAsyncTask;
 import be.vives.recipeshunter.data.services.DownloadRecipeIngredientsAsyncTask;
 import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.viewmodels.RecipeDetailsViewModel;
@@ -45,6 +46,7 @@ public class RecipeDetailsFragment extends Fragment {
     private Button mOpenSourceUrlButton;
     private FloatingActionButton mAddToFavouritesFab;
     private TextView mSocialRankTextView;
+    private ProgressBar mProgressBar;
 
     private ArrayAdapter<String> mAdapter;
 
@@ -61,7 +63,47 @@ public class RecipeDetailsFragment extends Fragment {
 
     private AddFavouriteRecipeAsyncTask mAddToFavouritesAsyncTask;
 
-    private Promise<List<String>, Exception> mAsyncTaskDelegate;
+    private RemoveFavouriteRecipeAsyncTask mRemoveFavouriteRecipeAsyncTask;
+
+    private Promise<RecipeEntity, Exception> mAddedToFavouritesDelegate = new Promise<RecipeEntity, Exception>() {
+            @Override
+            public void resolve(RecipeEntity result) {
+                mAddToFavouritesFab.setImageDrawable(getActivity()
+                        .getResources()
+                        .getDrawable(R.drawable.ic_favorite_white_24dp));
+
+                Snackbar.make(getView(),
+                        result.getTitle() + getString(R.string.added_to_favourites),
+                        Snackbar.LENGTH_LONG)
+                        .show();
+            }
+
+            @Override
+            public void reject(Exception error) {
+                Snackbar errorMessage = Snackbar.make(getView(), "", Snackbar.LENGTH_LONG);
+                if (error.getMessage().contains("ingredients cannot be null")) {
+                    errorMessage.setText("Cannnot add to favourites because ingredients data is missing.");
+                } else {
+                    errorMessage.setText("Couldn't add recipe to favourites.");
+                }
+            }
+    };
+
+    private Promise<RecipeEntity, Exception> mRemovedFavouriteRecipeDelegate = new Promise<RecipeEntity, Exception>() {
+        @Override
+        public void resolve(RecipeEntity result) {
+            setFabOnClickListener();
+            mAddToFavouritesFab.setImageDrawable(getActivity()
+                    .getResources()
+                    .getDrawable(R.drawable.ic_favorite_border_white_24_dp));
+            Snackbar.make(getView(), result.getTitle() + " removed from favourites.", Snackbar.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void reject(Exception error) {
+            Snackbar.make(getView(), "Couldn't remove recipe from favourites.", Snackbar.LENGTH_LONG).show();
+        }
+    };
 
     public RecipeDetailsFragment() {
         mImageOptions = new DisplayImageOptions.Builder().build();
@@ -104,6 +146,7 @@ public class RecipeDetailsFragment extends Fragment {
         mOpenSourceUrlButton = (Button) view.findViewById(R.id.recipe_details_source_url);
         mAddToFavouritesFab = (FloatingActionButton) view.findViewById(R.id.recipe_details_add_to_favs_fab);
         mSocialRankTextView = (TextView) view.findViewById(R.id.recipe_details_social_rank);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.recipe_details_progress_bar);
 
         // set fab
         if (isRecipeInFavourites(mCurrentRecipe)) {
@@ -124,9 +167,8 @@ public class RecipeDetailsFragment extends Fragment {
 
         // set up ingredients list header
         View listViewHeader = inflater.inflate(R.layout.list_header, null);
-        listViewHeader.setClickable(false);
         TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
-        listViewHeaderTextView.setText("Ingredients");
+        listViewHeaderTextView.setText(R.string.ingredients_list_view_header);
         mIngredientsListView.addHeaderView(listViewHeader);
 
         // set up ingredients list view
@@ -139,49 +181,40 @@ public class RecipeDetailsFragment extends Fragment {
         LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
 
         if (mIngredientsList != null) {
+            mProgressBar.setVisibility(View.GONE);
             mIngredientsListView.setVisibility(View.VISIBLE);
         }
 
         // set up the async task
         mDownloadIngredientsAsyncTask = new DownloadRecipeIngredientsAsyncTask(mCurrentRecipe.getId());
-        mAsyncTaskDelegate = new Promise<List<String>, Exception>() {
+        mDownloadIngredientsAsyncTask.delegate = new Promise<List<String>, Exception>() {
             @Override
             public void resolve(List<String> result) {
+                hideProgressBar();
                 updateIngredientsListView(result);
                 updateConnectionStatusInToolbar();
             }
 
             @Override
             public void reject(Exception error) {
+                hideProgressBar();
                 updateConnectionStatusInToolbar();
-
                 Snackbar.make(view,
                         "Could not download recipe ingredients.",
                         Snackbar.LENGTH_LONG)
                         .show();
-
-                if (isRecipeInFavourites(mCurrentRecipe)) {
-                    return;
-                }
-
-                mAddToFavouritesFab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View fab) {
-                        Snackbar.make(view, "Can't add to favourites because ingredients are missing.", Snackbar.LENGTH_LONG).show();
-                    }
-                });
             }
         };
-        mDownloadIngredientsAsyncTask.delegate = mAsyncTaskDelegate;
 
         if (mIngredientsList == null && taskCanBeExecuted()) {
-            Log.d(getClass().getSimpleName(), "onCreateView: Executing task.");
-            mDownloadIngredientsAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
-        } else {
-            Log.d(getClass().getSimpleName(), "onCreateView: " + String.valueOf(mIngredientsList));
+            mDownloadIngredientsAsyncTask.execute();
         }
 
         return view;
+    }
+
+    private void hideProgressBar() {
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -215,49 +248,21 @@ public class RecipeDetailsFragment extends Fragment {
     }
 
     private void setFabOnClickListener() {
-        if (isRecipeInFavourites(mCurrentRecipe)) {
-            return;
-        }
-
         mAddToFavouritesFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mIngredientsList == null || mIngredientsList.isEmpty()) {
-                    Snackbar.make(getView(),
-                            "Cannot add to favourites, because ingredients data is missing."
-                            ,Snackbar.LENGTH_LONG)
-                            .show();
-                    return;
+                if (isRecipeInFavourites(mCurrentRecipe)) {
+                    mRemoveFavouriteRecipeAsyncTask = new RemoveFavouriteRecipeAsyncTask(getContext(), mCurrentRecipe);
+                    mRemoveFavouriteRecipeAsyncTask.delegate = mRemovedFavouriteRecipeDelegate;
+                    mRemoveFavouriteRecipeAsyncTask.execute();
+                } else {
+                    final RecipeDetailsViewModel recipeDetails = new RecipeDetailsViewModel(mCurrentRecipe, mIngredientsList);
+
+                    mAddToFavouritesAsyncTask = new AddFavouriteRecipeAsyncTask(
+                            getContext(), recipeDetails);
+                    mAddToFavouritesAsyncTask.delegate = mAddedToFavouritesDelegate;
+                    mAddToFavouritesAsyncTask.execute();
                 }
-
-                final RecipeDetailsViewModel recipeDetails = new RecipeDetailsViewModel(mCurrentRecipe, mIngredientsList);
-                mAddToFavouritesAsyncTask = new AddFavouriteRecipeAsyncTask(
-                        getContext(), recipeDetails);
-
-                mAddToFavouritesAsyncTask.delegate = new Promise<Boolean, Exception>() {
-                    @Override
-                    public void resolve(Boolean result) {
-                        mAddToFavouritesFab.setOnClickListener(null);
-                        mAddToFavouritesFab.setClickable(false);
-                        mAddToFavouritesFab.setImageDrawable(getActivity()
-                                .getResources()
-                                .getDrawable(R.drawable.ic_favorite_white_24dp));
-
-                        Snackbar.make(getView(),
-                                recipeDetails.getTitle() + " added to favourites.",
-                                Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-
-                    @Override
-                    public void reject(Exception error) {
-                        Snackbar.make(getView(),
-                                "Couldn't add recipe to favourites.",
-                                Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-                };
-                mAddToFavouritesAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
             }
         });
     }

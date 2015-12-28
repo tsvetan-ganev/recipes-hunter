@@ -66,6 +66,13 @@
                 android:layout_marginBottom="30dp"
                 android:layout_weight="0.5" />
 
+            <ProgressBar
+                android:id="@+id/recipe_details_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                />
+
             <Button
                 android:id="@+id/recipe_details_source_url"
                 android:layout_width="match_parent"

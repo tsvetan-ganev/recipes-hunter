@@ -99,9 +99,4 @@ public class IngredientDAOImpl extends AppDb implements IngredientDAO {
 
         database.insert(DbContract.INGREDIENT_TABLE ,null, values);
     }
-
-    @Override
-    public void delete(Integer id) {
-
-    }
 }
