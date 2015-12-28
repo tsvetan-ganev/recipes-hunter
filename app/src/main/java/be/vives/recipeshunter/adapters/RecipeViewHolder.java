@@ -40,12 +40,11 @@ public class RecipeViewHolder extends RecyclerView.ViewHolder implements Swipeab
     public void onItemSelected() {
         CardView cardView = (CardView) itemView;
         cardView.setCardBackgroundColor(Color.RED);
-        Toast.makeText(itemView.getContext(), "Swipe to remove." , Toast.LENGTH_SHORT).show();
+        Toast.makeText(itemView.getContext(), itemView.getResources().getString(R.string.swipe_to_remove_hint) , Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onItemReleased() {
-        // TODO: Use resources
         CardView cardView = (CardView) itemView;
         cardView.setCardBackgroundColor(mBgColor);
     }

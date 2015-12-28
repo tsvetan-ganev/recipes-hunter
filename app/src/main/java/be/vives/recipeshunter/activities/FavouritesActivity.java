@@ -57,8 +57,6 @@ public class FavouritesActivity extends AppCompatActivity implements
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         }
 
-        getSupportFragmentManager().enableDebugLogging(true);
-
         if (savedInstanceState == null) {
             if (mRecipeDetails != null) {
                 navigateFromFavouritesList();
