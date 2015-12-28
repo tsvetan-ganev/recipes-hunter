@@ -32,6 +32,11 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Recipe
 
     @Override
     protected RecipeEntity doInBackground(Void... params) {
+        if (mRecipe.getIngredients() == null || mRecipe.getIngredients().isEmpty()) {
+            mError = new IllegalArgumentException("Recipe ingredients cannot be null or empty");
+            return null;
+        }
+
         // convert from view model to entity
         RecipeEntity recipe = new RecipeEntity();
 
@@ -81,11 +86,6 @@ public class AddFavouriteRecipeAsyncTask extends AsyncTask<Void, Integer, Recipe
 
     private void insertRecipeIngredients(RecipeDetailsViewModel recipe) {
         mIngredientDao.open();
-
-        if (recipe.getIngredients() == null) {
-            throw new IllegalArgumentException("Recipe ingredients cannot be null.");
-        }
-
         for (String ingredientName :
                 recipe.getIngredients()) {
             IngredientEntity ingredient = new IngredientEntity();

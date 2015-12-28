@@ -54,12 +54,12 @@ public class FavouritesActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
 
-        Log.d(getClass().getSimpleName(), "onCreate: " + getFragmentManager().getBackStackEntryCount());
-
         // init image loader
         if (!ImageLoader.getInstance().isInited()) {
             ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
         }
+
+        getSupportFragmentManager().enableDebugLogging(true);
 
         if (savedInstanceState == null) {
             if (mRecipeDetails != null) {
@@ -117,7 +117,6 @@ public class FavouritesActivity extends AppCompatActivity implements
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .addToBackStack(mLastFragmentTag)
                 .replace(R.id.fragment_placeholder, mFragment, mLastFragmentTag)
                 .commit();
     }

@@ -86,6 +86,8 @@ public class RecipeDetailsFragment extends Fragment {
                 } else {
                     errorMessage.setText("Couldn't add recipe to favourites.");
                 }
+
+                errorMessage.show();
             }
     };
 
@@ -96,12 +98,12 @@ public class RecipeDetailsFragment extends Fragment {
             mAddToFavouritesFab.setImageDrawable(getActivity()
                     .getResources()
                     .getDrawable(R.drawable.ic_favorite_border_white_24_dp));
-            Snackbar.make(getView(), result.getTitle() + " removed from favourites.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView(), result.getTitle() + R.string.removed_from_favourites, Snackbar.LENGTH_LONG).show();
         }
 
         @Override
         public void reject(Exception error) {
-            Snackbar.make(getView(), "Couldn't remove recipe from favourites.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView(), R.string.couldnt_remove_recipe_from_db, Snackbar.LENGTH_LONG).show();
         }
     };
 
@@ -200,7 +202,7 @@ public class RecipeDetailsFragment extends Fragment {
                 hideProgressBar();
                 updateConnectionStatusInToolbar();
                 Snackbar.make(view,
-                        "Could not download recipe ingredients.",
+                        R.string.cannot_download_recipe_ingredients,
                         Snackbar.LENGTH_LONG)
                         .show();
             }

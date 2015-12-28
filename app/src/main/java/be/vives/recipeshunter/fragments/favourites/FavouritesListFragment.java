@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,9 @@ import be.vives.recipeshunter.adapters.interactivity.OnItemDismissedListener;
 import be.vives.recipeshunter.adapters.interactivity.TouchCallback;
 import be.vives.recipeshunter.data.Constants;
 import be.vives.recipeshunter.data.entities.RecipeEntity;
+import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
 import be.vives.recipeshunter.data.services.Promise;
 import be.vives.recipeshunter.data.services.RemoveFavouriteRecipeAsyncTask;
-import be.vives.recipeshunter.data.services.GetFavouriteRecipesAsyncTask;
 import be.vives.recipeshunter.utils.ItemClickSupport;
 
 public class FavouritesListFragment extends Fragment {
@@ -34,6 +35,7 @@ public class FavouritesListFragment extends Fragment {
 
     // UI widgets
     private ProgressBar mProgressBar;
+    private TextView mEmptyListMessage;
     private RecyclerView mRecyclerView;
     private SwipeableRecipesRecyclerListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -76,13 +78,17 @@ public class FavouritesListFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_favourites_list, container, false);
 
         getActivity().setTitle(getResources().getString(R.string.favourite_recipes));
-        Log.d(getClass().getSimpleName(), "onCreateView: created");
 
         // set up UI widgets
         mProgressBar = (ProgressBar) view.findViewById(R.id.favourites_list_progress_bar);
+        mEmptyListMessage = (TextView) view.findViewById(R.id.favourites_list_empty_message);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.favourites_list_recycler_view);
 
         mProgressBar.setVisibility(View.VISIBLE);
+        if (mFavouriteRecipes.isEmpty()) {
+            displayEmptyListMessage();
+        }
+
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -98,6 +104,10 @@ public class FavouritesListFragment extends Fragment {
                 mFavouriteRecipes.addAll(result);
                 mAdapter.notifyItemRangeInserted(0, result.size());
                 mProgressBar.setVisibility(View.GONE);
+
+                if (!result.isEmpty()) {
+                    hideEmptyListMessage();
+                }
             }
 
             public void reject(Exception error) {
@@ -120,6 +130,10 @@ public class FavouritesListFragment extends Fragment {
         mItemSwipeListener.attachToRecyclerView(mRecyclerView);
 
         return view;
+    }
+
+    private void hideEmptyListMessage() {
+        mEmptyListMessage.setVisibility(View.GONE);
     }
 
     public void onAttach(Activity activity) {
@@ -152,6 +166,10 @@ public class FavouritesListFragment extends Fragment {
                                 result.getTitle() + getResources().getString(R.string.removed_from_favourites),
                                 Snackbar.LENGTH_LONG)
                                 .show();
+
+                        if (mFavouriteRecipes.isEmpty()) {
+                            displayEmptyListMessage();
+                        }
                     }
 
                     @Override
@@ -168,6 +186,10 @@ public class FavouritesListFragment extends Fragment {
         };
     }
 
+    private void displayEmptyListMessage() {
+        mEmptyListMessage.setVisibility(View.VISIBLE);
+    }
+
     private void setOnItemClickedListener(RecyclerView recyclerView) {
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
@@ -180,6 +202,7 @@ public class FavouritesListFragment extends Fragment {
 
     public interface FavouritesListFragmentListener {
         void setRecipe(RecipeEntity recipe);
+
         void navigateFromFavouritesListFragment();
     }
 }

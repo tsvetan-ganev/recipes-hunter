@@ -21,7 +21,6 @@ public final class Constants {
     public static final String BUNDLE_ITEM_SELECTED_RECIPE = "bundle_item_selected_recipe";
     public static final String BUNDLE_ITEM_INGREDIENTS_LIST = "bundle_item_ingredients_list";
     public static final String BUNDLE_ITEM_RECIPES_LIST = "bundle_item_recipes_list";
-    public static final String BUNDLE_ITEM_LAST_FRAGMENT_VISITED = "bundle_item_last_fragment_visited";
     public static final String BUNDLE_ITEM_CURRENT_PAGE = "bundle_item_current_page";
     public static final String BUNDLE_ITEM_RECIPE_DETAILS = "bundle_item_recipe_details";
     public static final String BUNDLE_ITEM_FAVOURITE_RECIPES = "bundle_item_favourite_recipes";

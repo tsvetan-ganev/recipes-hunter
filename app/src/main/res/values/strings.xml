@@ -22,4 +22,8 @@
     <string name="favourtes_couldnt_be_loaded">Favourites couldn\'t be loaded.</string>
     <string name="ingredients_list_view_header">Ingredients</string>
     <string name="added_to_favourites">" added to favourites."</string>
+    <string name="favourites_list_empty">No recipes in your favourites list.</string>
+    <string name="ingredients_cannot_be_loaded">Ingredients couldn\'t be loaded.</string>
+    <string name="cannot_download_recipe_ingredients">Could not download recipe ingredients.</string>
+    <string name="server_cannot_be_reached">Server couldn\'t be reached.</string>
 </resources>

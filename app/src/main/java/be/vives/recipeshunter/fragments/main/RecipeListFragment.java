@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,7 +144,7 @@ public class RecipeListFragment extends Fragment {
                     mErrorTextView.setVisibility(View.VISIBLE);
                     mCardViewListContainer.setVisibility(View.GONE);
                 } else {
-                    Snackbar.make(view, "Server couldn't be reached.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(view, R.string.server_cannot_be_reached, Snackbar.LENGTH_SHORT).show();
                 }
 
                 updateConnectionStatusInToolbar();
@@ -177,8 +176,6 @@ public class RecipeListFragment extends Fragment {
         outState.putString(Constants.BUNDLE_ITEM_SEARCH_QUERY, mSearchQuery);
         outState.putInt(Constants.BUNDLE_ITEM_CURRENT_PAGE, mCurrentPage);
         outState.putParcelableArrayList(Constants.BUNDLE_ITEM_RECIPES_LIST, mRecipesList);
-
-        outState.putString(Constants.BUNDLE_ITEM_LAST_FRAGMENT_VISITED, Constants.FRAGMENT_MAIN_RECIPES_LIST);
     }
 
     private void addOnItemClickListenerToRecycleView(RecyclerView recyclerView) {
@@ -211,7 +208,6 @@ public class RecipeListFragment extends Fragment {
             mIsLoading = true;
             mAsyncTask = new DownloadRecipesAsyncTask(newQuery);
             mAsyncTask.delegate = mAsyncTaskDelegate;
-            Log.d(getClass().getSimpleName(), "onScrolledToBottom: p." + mCurrentPage);
             mAsyncTask.execute();
         }
     }
@@ -235,9 +231,7 @@ public class RecipeListFragment extends Fragment {
 
     public interface RecipesListFragmentListener {
         String getQueryString();
-
         void setRecipe(RecipeEntity recipe);
-
         void navigateToDetailsFragment();
     }
 }

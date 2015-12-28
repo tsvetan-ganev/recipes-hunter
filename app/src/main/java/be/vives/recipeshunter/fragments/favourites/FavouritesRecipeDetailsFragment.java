@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -135,12 +136,11 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
                 }
 
                 LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
-                Log.d(getClass().getSimpleName(), "resolve: " + result.toString());
             }
 
             @Override
             public void reject(Exception error) {
-                Log.d(this.getClass().getSimpleName(), "reject: " + "Something happened.");
+                Snackbar.make(getView(), R.string.ingredients_cannot_be_loaded, Snackbar.LENGTH_LONG).show();
             }
         };
 
@@ -164,14 +164,13 @@ public class FavouritesRecipeDetailsFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d(getClass().getSimpleName(), "onDetach: called");
         mListener = null;
     }
 
     private void addHeaderToIngredientsListView(LayoutInflater inflater) {
         View listViewHeader = inflater.inflate(R.layout.list_header, null);
         TextView listViewHeaderTextView = (TextView) listViewHeader.findViewById(R.id.list_view_header);
-        listViewHeaderTextView.setText("Ingredients");
+        listViewHeaderTextView.setText(R.string.ingredients_list_view_header);
         mIngredientsListView.addHeaderView(listViewHeader);
     }
 

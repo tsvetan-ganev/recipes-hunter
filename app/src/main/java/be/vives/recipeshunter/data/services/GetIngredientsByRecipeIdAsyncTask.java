@@ -13,6 +13,7 @@ import be.vives.recipeshunter.data.local.dao.impl.IngredientDAOImpl;
 public class GetIngredientsByRecipeIdAsyncTask extends AsyncTask<Void, Integer, List<String>> {
     private IngredientDAO mIngredientDAO;
     private final String mRecipeId;
+    private Exception mError;
 
     public Promise<List<String>, Exception> delegate;
 
@@ -27,17 +28,29 @@ public class GetIngredientsByRecipeIdAsyncTask extends AsyncTask<Void, Integer, 
             return Collections.emptyList();
         }
 
-        mIngredientDAO.open();
-        List<String> result = mIngredientDAO.findAllByRecipeId(mRecipeId);
-        mIngredientDAO.close();
+        List<String> result = null;
+        try {
+            mIngredientDAO.open();
+            result = mIngredientDAO.findAllByRecipeId(mRecipeId);
+        } catch (Exception ex) {
+            mError = ex;
+        } finally {
+            mIngredientDAO.close();
+        }
 
         return (result != null) ? result : new ArrayList<String>();
     }
 
     @Override
     protected void onPostExecute(List<String> result) {
-        if (this.delegate != null) {
+        if (this.delegate == null) {
+            throw new IllegalStateException("Delegate must be initialized for the task to execute.");
+        }
+
+        if (mError == null) {
             delegate.resolve(result);
+        } else {
+            delegate.reject(mError);
         }
     }
 }
