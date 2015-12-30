@@ -180,7 +180,6 @@ public class RecipeDetailsFragment extends Fragment {
                 (mIngredientsList != null) ? mIngredientsList : new ArrayList<String>());
         mIngredientsListView.setAdapter(mAdapter);
         mIngredientsListView.setOnItemClickListener(null);
-        LayoutUtils.setListViewHeightBasedOnItems(mIngredientsListView);
 
         if (mIngredientsList != null) {
             mProgressBar.setVisibility(View.GONE);
